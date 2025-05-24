@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Budget Analyzer (INR)</title>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .dark { background-color: #1a202c; color: #e2e8f0; }
+        .dark .bg-white { background-color: #2d3748; }
+        .dark .bg-gray-50 { background-color: #4a5568; }
+        .dark .text-gray-700 { color: #e2e8f0; }
+        .dark .text-gray-600 { color: #a0aec0; }
+        .dark .border { border-color: #4a5568; }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen transition-colors duration-300">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-3xl">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold">Ultimate Budget Analyzer (INR)</h1>
+            <button onclick="toggleTheme()" class="bg-gray-500 text-white p-2 rounded hover:bg-gray-600">Toggle Dark Mode</button>
+        </div>
+
+        <!-- Budget Templates -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Select Budget Template</label>
+            <select id="template" class="mt-1 p-2 w-full border rounded" onchange="applyTemplate()">
+                <option value="none">None</option>
+                <option value="student">Student</option>
+                <option value="family">Family</option>
+                <option value="professional">Professional</option>
+            </select>
+        </div>
+
+        <!-- Income Input -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Monthly Income (₹)</label>
+            <input id="income" type="number" min="0" step="0.01" class="mt-1 p-2 w-full border rounded" placeholder="Enter total income" required>
+        </div>
+
+        <!-- Expense Categories -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Expenses (₹)</label>
+            <div id="expenseCategories" class="grid grid-cols-2 gap-4"></div>
+            <div class="mt-2">
+                <input id="newCategoryName" type="text" class="p-2 border rounded" placeholder="New category name">
+                <input id="newCategoryAmount" type="number" min="0" step="0.01" class="p-2 border rounded" placeholder="Amount">
+                <button onclick="addCategory()" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Add Category</button>
+            </div>
+        </div>
+
+        <!-- Expense Notes -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Expense Notes</label>
+            <textarea id="expenseNotes" class="mt-1 p-2 w-full border rounded" placeholder="Add notes for expenses"></textarea>
+        </div>
+
+        <!-- Savings Goals -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Savings Goal (₹)</label>
+            <input id="savingsGoal" type="number" min="0" step="0.01" class="mt-1 p-2 w-full border rounded" placeholder="Enter savings goal">
+        </div>
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Current Savings (₹)</label>
+            <input id="currentSavings" type="number" min="0" step="0.01" class="mt-1 p-2 w-full border rounded" placeholder="Enter current savings">
+        </div>
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Annual Interest Rate (%)</label>
+            <input id="interestRate" type="number" min="0" step="0.01" class="mt-1 p-2 w-full border rounded" placeholder="Enter interest rate (e.g., 5 for 5%)">
+        </div>
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Months to Plan</label>
+            <input id="planMonths" type="number" min="1" step="1" class="mt-1 p-2 w-full border rounded" placeholder="Enter number of months" value="12">
+        </div>
+
+        <!-- Data Import -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Import Savings History</label>
+            <input id="importFile" type="file" accept=".csv" class="mt-1 p-2 w-full border rounded">
+            <button onclick="importData()" class="mt-2 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Import</button>
+        </div>
+
+        <div class="flex space-x-4">
+            <button onclick="calculateBudget()" class="flex-1 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Analyze Budget</button>
+            <button onclick="resetSavings()" class="flex-1 bg-red-500 text-white p-2 rounded hover:bg-red-600">Reset Savings</button>
+            <button onclick="exportData()" class="flex-1 bg-green-500 text-white p-2 rounded hover:bg-green-600">Export Data</button>
+            <button onclick="backupData()" class="flex-1 bg-purple-500 text-white p-2 rounded hover:bg-purple-600">Backup Data</button>
+        </div>
+
+        <!-- Results -->
+        <div id="result" class="mt-6 space-y-4"></div>
+        <canvas id="expenseChart" class="mt-4"></canvas>
+        <canvas id="savingsChart" class="mt-4"></canvas>
+    </div>
+
+    <script>
+        // Load saved data from localStorage
+        let monthlySavingsHistory = JSON.parse(localStorage.getItem('monthlySavingsHistory')) || [];
+        let customCategories = JSON.parse(localStorage.getItem('customCategories')) || [
+            { id: 'housing', name: 'Housing', amount: 0 },
+            { id: 'groceries', name: 'Groceries', amount: 0 },
+            { id: 'transport', name: 'Transport', amount: 0 },
+            { id: 'utilities', name: 'Utilities', amount: 0 },
+            { id: 'accessories', name: 'Accessories', amount: 0 },
+            { id: 'furniture', name: 'Furniture', amount: 0 },
+            { id: 'entertainment', name: 'Entertainment', amount: 0 },
+            { id: 'other', name: 'Other', amount: 0 }
+        ];
+        let expenseChart = null;
+        let savingsChart = null;
+
+        // Initialize categories
+        function renderCategories() {
+            const container = document.getElementById('expenseCategories');
+            container.innerHTML = customCategories.map(cat => `
+                <div>
+                    <label class="block text-xs text-gray-600">${cat.name}</label>
+                    <input id="${cat.id}" type="number" min="0" step="0.01" class="mt-1 p-2 w-full border rounded" placeholder="${cat.name}" value="${cat.amount}">
+                    <button onclick="removeCategory('${cat.id}')" class="text-red-500 text-xs mt-1">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        function addCategory() {
+            const name = document.getElementById('newCategoryName').value.trim();
+            const amount = parseFloat(document.getElementById('newCategoryAmount').value) || 0;
+            if (name) {
+                const id = 'cat' + Date.now();
+                customCategories.push({ id, name, amount });
+                localStorage.setItem('customCategories', JSON.stringify(customCategories));
+                document.getElementById('newCategoryName').value = '';
+                document.getElementById('newCategoryAmount').value = '';
+                renderCategories();
+            }
+        }
+
+        function removeCategory(id) {
+            customCategories = customCategories.filter(cat => cat.id !== id);
+            localStorage.setItem('customCategories', JSON.stringify(customCategories));
+            renderCategories();
+        }
+
+        // Budget Templates
+        const templates = {
+            student: { income: 10000, housing: 3000, groceries: 2000, transport: 1000, utilities: 500, accessories: 500, furniture: 0, entertainment: 1000, other: 500 },
+            family: { income: 50000, housing: 15000, groceries: 8000, transport: 5000, utilities: 3000, accessories: 2000, furniture: 1000, entertainment: 2000, other: 3000 },
+            professional: { income: 80000, housing: 20000, groceries: 5000, transport: 4000, utilities: 2000, accessories: 3000, furniture: 1000, entertainment: 3000, other: 4000 }
+        };
+
+        function applyTemplate() {
+            const template = document.getElementById('template').value;
+            if (template !== 'none') {
+                const data = templates[template];
+                document.getElementById('income').value = data.income;
+                customCategories.forEach(cat => {
+                    document.getElementById(cat.id).value = data[cat.id] || 0;
+                    cat.amount = data[cat.id] || 0;
+                });
+                localStorage.setItem('customCategories', JSON.stringify(customCategories));
+            }
+        }
+
+        // AI Integration for Budget Suggestions
+        function getAISuggestions(income, totalExpenses, savingsRate) {
+            let suggestions = [];
+            if (savingsRate < 10) {
+                suggestions.push("Savings rate is below 10%. Consider reducing discretionary spending (e.g., entertainment, accessories) by 10-20%.");
+            }
+            if (totalExpenses / income > 0.8) {
+                suggestions.push("Expenses exceed 80% of income. Review high-cost categories like housing or transport for savings opportunities.");
+            }
+            if (income > 0 && savingsRate > 20) {
+                suggestions.push("Great job! Your savings rate is above 20%. Consider investing excess savings for higher returns.");
+            }
+            return suggestions.length ? `<div class="bg-yellow-100 p-4 rounded"><h3 class="text-lg font-semibold">AI Suggestions</h3><ul>${suggestions.map(s => `<li>${s}</li>`).join('')}</ul></div>` : '';
+        }
+
+        function calculateBudget() {
+            // Get input values
+            const income = parseFloat(document.getElementById('income').value) || 0;
+            const savingsGoal = parseFloat(document.getElementById('savingsGoal').value) || 0;
+            const currentSavings = parseFloat(document.getElementById('currentSavings').value) || 0;
+            const interestRate = parseFloat(document.getElementById('interestRate').value) || 0;
+            const planMonths = parseInt(document.getElementById('planMonths').value) || 12;
+            const expenseNotes = document.getElementById('expenseNotes').value;
+
+            // Update category amounts
+            customCategories.forEach(cat => {
+                cat.amount = parseFloat(document.getElementById(cat.id).value) || 0;
+            });
+
+            // Validate inputs
+            if (income < 0 || customCategories.some(cat => cat.amount < 0) || savingsGoal < 0 || currentSavings < 0 || interestRate < 0 || planMonths < 1) {
+                document.getElementById('result').innerHTML = '<p class="text-red-500">Please enter non-negative values and at least 1 month.</p>';
+                return;
+            }
+
+            // Calculate total expenses and savings
+            const totalExpenses = customCategories.reduce((sum, cat) => sum + cat.amount, 0);
+            const monthlySavings = income - totalExpenses;
+            const savingsRate = income > 0 ? (monthlySavings / income * 100).toFixed(2) : 0;
+            const remainingGoal = savingsGoal - currentSavings;
+            const monthsToGoal = monthlySavings > 0 ? Math.ceil(remainingGoal / monthlySavings) : 'N/A';
+
+            // Savings forecast with compound interest
+            const monthlyRate = interestRate / 100 / 12;
+            const futureSavings = currentSavings * Math.pow(1 + monthlyRate, planMonths) + monthlySavings * ((Math.pow(1 + monthlyRate, planMonths) - 1) / monthlyRate);
+
+            // Budget alerts
+            let alerts = '';
+            if (totalExpenses / income > 0.9) {
+                alerts = '<p class="text-red-500 font-semibold mt-2">Alert: Expenses exceed 90% of income! Reduce spending urgently.</p>';
+                notifyUser('High Spending Alert', 'Expenses exceed 90% of income. Review your budget.');
+            } else if (totalExpenses / income > 0.7) {
+                alerts = '<p class="text-yellow-500 font-semibold mt-2">Alert: Expenses are over 70% of income. Consider cutting back.</p>';
+            }
+
+            // Store monthly savings
+            const currentMonth = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+            monthlySavingsHistory.push({ month: currentMonth, savings: monthlySavings, notes: expenseNotes });
+            localStorage.setItem('monthlySavingsHistory', JSON.stringify(monthlySavingsHistory));
+
+            // Generate expense breakdown
+            const expenseBreakdown = `
+                <div class="bg-gray-50 p-4 rounded">
+                    <h3 class="text-lg font-semibold">Expense Breakdown</h3>
+                    ${customCategories.map(cat => `<p>${cat.name}: ₹${cat.amount.toFixed(2)} (${totalExpenses > 0 ? ((cat.amount / totalExpenses) * 100).toFixed(1) : 0}%)</p>`).join('')}
+                </div>
+            `;
+
+            // Generate savings progress
+            const progressPercentage = savingsGoal > 0 ? (currentSavings / savingsGoal * 100).toFixed(1) : 0;
+            const savingsProgress = `
+                <div class="bg-gray-50 p-4 rounded">
+                    <h3 class="text-lg font-semibold">Savings Progress</h3>
+                    <p>Current: ₹${currentSavings.toFixed(2)} / Goal: ₹${savingsGoal.toFixed(2)}</p>
+                    <div class="w-full bg-gray-200 rounded-full h-4 mt-2">
+                        <div class="bg-blue-500 h-4 rounded-full" style="width: ${progressPercentage}%"></div>
+                    </div>
+                    <p>${progressPercentage}% of goal achieved</p>
+                    <p>Time to Goal: ${monthsToGoal !== 'N/A' ? monthsToGoal + ' months' : 'Increase income or reduce expenses'}</p>
+                    <p>Projected Savings (${planMonths} months, ${interestRate}% interest): ₹${futureSavings.toFixed(2)}</p>
+                </div>
+            `;
+
+            // Generate monthly savings history
+            const savingsHistory = `
+                <div class="bg-gray-50 p-4 rounded">
+                    <h3 class="text-lg font-semibold">Monthly Savings History</h3>
+                    ${monthlySavingsHistory.map(entry => `<p>${entry.month}: ₹${entry.savings.toFixed(2)} ${entry.notes ? `(${entry.notes})` : ''}</p>`).join('')}
+                </div>
+            `;
+
+            // AI Suggestions
+            const aiSuggestions = getAISuggestions(income, totalExpenses, savingsRate);
+
+            // Generate result
+            let result = `
+                <p class="text-lg"><strong>Monthly Savings:</strong> ₹${monthlySavings.toFixed(2)}</p>
+                <p class="text-lg"><strong>Savings Rate:</strong> ${savingsRate}%</p>
+                ${expenseBreakdown}
+                ${savingsProgress}
+                ${savingsHistory}
+                ${aiSuggestions}
+                ${alerts}
+            `;
+
+            if (monthlySavings < 0) {
+                result += '<p class="text-red-500 font-semibold mt-2">Warning: Expenses exceed income!</p>';
+                notifyUser('Negative Savings', 'Expenses exceed income. Adjust your budget.');
+            }
+
+            document.getElementById('result').innerHTML = result;
+
+            // Update expense chart
+            if (expenseChart) expenseChart.destroy();
+            const expenseCtx = document.getElementById('expenseChart').getContext('2d');
+            expenseChart = new Chart(expenseCtx, {
+                type: 'pie',
+                data: {
+                    labels: customCategories.map(cat => cat.name),
+                    datasets: [{
+                        data: customCategories.map(cat => cat.amount),
+                        backgroundColor: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD', '#D4A5A5', '#9B59B6', '#3498DB', '#E67E22', '#2ECC71']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+
+            // Update savings chart
+            if (savingsChart) savingsChart.destroy();
+            const savingsCtx = document.getElementById('savingsChart').getContext('2d');
+            savingsChart = new Chart(savingsCtx, {
+                type: 'line',
+                data: {
+                    labels: monthlySavingsHistory.map(entry => entry.month),
+                    datasets: [{
+                        label: 'Savings (₹)',
+                        data: monthlySavingsHistory.map(entry => entry.savings),
+                        borderColor: '#3498DB',
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Savings (₹)' } } }
+                }
+            });
+        }
+
+        function resetSavings() {
+            monthlySavingsHistory = [];
+            localStorage.setItem('monthlySavingsHistory', JSON.stringify(monthlySavingsHistory));
+            document.getElementById('result').innerHTML = '<p class="text-green-500">Savings history reset!</p>';
+            if (expenseChart) expenseChart.destroy();
+            if (savingsChart) savingsChart.destroy();
+            notifyUser('Data Reset', 'Savings history has been reset.');
+        }
+
+        function exportData() {
+            const dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(
+                "Month,Savings (INR),Notes\n" + monthlySavingsHistory.map(entry => `${entry.month},${entry.savings.toFixed(2)},${entry.notes || ''}`).join('\n')
+            );
+            const link = document.createElement('a');
+            link.setAttribute('href', dataStr);
+            link.setAttribute('download', 'savings_history_inr.csv');
+            link.click();
+        }
+
+        function importData() {
+            const fileInput = document.getElementById('importFile');
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const text = e.target.result;
+                    const rows = text.split('\n').slice(1); // Skip header
+                    monthlySavingsHistory = rows
+                        .filter(row => row.trim())
+                        .map(row => {
+                            const [month, savings, notes] = row.split(',');
+                            return { month, savings: parseFloat(savings) || 0, notes };
+                        });
+                    localStorage.setItem('monthlySavingsHistory', JSON.stringify(monthlySavingsHistory));
+                    document.getElementById('result').innerHTML = '<p class="text-green-500">Data imported successfully!</p>';
+                    notifyUser('Data Imported', 'Savings history imported successfully.');
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function backupData() {
+            const backupData = {
+                monthlySavingsHistory,
+                customCategories,
+                expenseNotes: document.getElementById('expenseNotes').value
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
+            const link = document.createElement('a');
+            link.setAttribute('href', dataStr);
+            link.setAttribute('download', 'budget_backup.json');
+            link.click();
+            notifyUser('Backup Created', 'Data backup downloaded successfully.');
+        }
+
+        function notifyUser(title, message) {
+            if (Notification.permission === 'granted') {
+                new Notification(title, { body: message });
+            } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        new Notification(title, { body: message });
+                    }
+                });
+            }
+        }
+
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        }
+
+        // Initialize theme
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+
+        // Request notification permission
+        if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+            Notification.requestPermission();
+        }
+
+        // Initial render
+        renderCategories();
+    </script>
+</body>
+</html>
