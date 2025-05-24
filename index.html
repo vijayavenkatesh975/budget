@@ -3,95 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate Budget Analyzer (INR)</title>
+    <title>Historical Budget Analyzer (INR)</title>
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <style>
-        .dark { background-color: #1a202c; color: #e2e8f0; }
-        .dark .bg-white { background-color: #2d3748; }
-        .dark .bg-gray-50 { background-color: #4a5568; }
-        .dark .text-gray-700 { color: #e2e8f0; }
-        .dark .text-gray-600 { color: #a0aec0; }
-        .dark .border { border-color: #4a5568; }
+        /* Dark Mode Styles */
+        .dark { background-color: #1f2937; color: #f1f5f9; }
+        .dark .bg-white { background-color: #374151; }
+        .dark .bg-gray-50 { background-color: #4b5563; }
+        .dark .text-gray-700 { color: #f1f5f9; }
+        .dark .text-gray-600 { color: #9ca3af; }
+        .dark .border { border-color: #4b5563; }
+        .invalid { 
+            border-color: #ef4444 !important; 
+            outline: none; 
+        }
+        .error-message { 
+            color: #ef4444; 
+            font-size: 0.75rem; 
+            margin-top: 0.25rem; 
+            display: none; 
+        }
+        .invalid + .error-message { 
+            display: block; 
+        }
+
+        /* Tooltip Styles */
+        .tooltip { position: relative; }
+        .tooltip:focus::after, .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            background: #4b5563;
+            color: #f1f5f9;
+            padding: 8px 12px;
+            border-radius: 6px;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            z-index: 10;
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
+        }
+
+        /* Progress Bar Animation */
+        .progress-bar {
+            transition: width 1.5s ease-in-out;
+        }
+
+        /* Fade-in Animation */
+        .fade-in {
+            opacity: 0;
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+
+        /* Pulse Animation for Analyze Button */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Sticky Button */
+        .sticky-btn {
+            position: sticky;
+            top: 1rem;
+            z-index: 20;
+        }
+
+        /* Collapsible Section */
+        .collapsible-header {
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .collapsible-header:hover {
+            background-color: #f3f4f6;
+        }
+        .dark .collapsible-header:hover {
+            background-color: #4b5563;
+        }
+        .collapsible-content {
+            display: none;
+        }
+        .collapsible-content.open {
+            display: block;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 640px) {
+            .grid-cols-2 { grid-template-columns: 1fr; }
+            .text-3xl { font-size: 1.5rem; }
+            .max-w-4xl { max-width: 100%; }
+            canvas { max-height: 300px; }
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen transition-colors duration-300">
-    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-3xl">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold">Ultimate Budget Analyzer (INR)</h1>
-            <button onclick="toggleTheme()" class="bg-gray-500 text-white p-2 rounded hover:bg-gray-600">Toggle Dark Mode</button>
+    <div class="bg-white p-10 rounded-xl shadow-xl w-full max-w-4xl fade-in" role="main">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-200">Historical Budget Analyzer (INR)</h1>
+            <button onclick="toggleTheme()" class="text-2xl tooltip" data-tooltip="Toggle Theme" aria-label="Toggle Theme">
+                <span id="themeIcon">💡</span>
+            </button>
         </div>
 
-        <!-- Budget Templates -->
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Select Budget Template</label>
-            <select id="template" class="mt-1 p-2 w-full border rounded" onchange="applyTemplate()">
-                <option value="none">None</option>
-                <option value="student">Student</option>
-                <option value="family">Family</option>
-                <option value="professional">Professional</option>
-            </select>
-        </div>
+        <!-- Income & Expenses Section -->
+        <div class="mb-6">
+            <div class="collapsible-header bg-gray-50 p-4 rounded-lg flex justify-between items-center" onclick="toggleCollapsible('incomeExpenses')">
+                <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-200"><i class="fas fa-wallet mr-2"></i>Income & Expenses</h2>
+                <i class="fas fa-chevron-down" id="incomeExpensesChevron"></i>
+            </div>
+            <div id="incomeExpenses" class="collapsible-content mt-4 open">
+                <!-- Budget Templates -->
+                <div class="mb-4 fade-in">
+                    <label class="block text-sm font-medium text-gray-700">Select Budget Template</label>
+                    <select id="template" class="mt-1 p-3 w-full border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition" data-tooltip="Choose a preset budget" onchange="applyTemplate()" aria-label="Budget Template">
+                        <option value="none">None</option>
+                        <option value="student">Student</option>
+                        <option value="family">Family</option>
+                        <option value="professional">Professional</option>
+                    </select>
+                </div>
 
-        <!-- Income Input -->
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Monthly Income (₹)</label>
-            <input id="income" type="number" min="0" step="0.01" class="mt-1 p-2 w-full border rounded" placeholder="Enter total income" required>
-        </div>
+                <!-- Income Input -->
+                <div class="mb-4 fade-in">
+                    <label for="income" class="block text-sm font-medium text-gray-700">Monthly Income (₹)</label>
+                    <input id="income" type="number" min="0" step="0.01" class="mt-1 p-3 w-full border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition" data-tooltip="Enter your total monthly income" placeholder="Enter total income" required aria-required="true" autofocus>
+                    <p class="error-message">Income cannot be negative or empty.</p>
+                </div>
 
-        <!-- Expense Categories -->
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Expenses (₹)</label>
-            <div id="expenseCategories" class="grid grid-cols-2 gap-4"></div>
-            <div class="mt-2">
-                <input id="newCategoryName" type="text" class="p-2 border rounded" placeholder="New category name">
-                <input id="newCategoryAmount" type="number" min="0" step="0.01" class="p-2 border rounded" placeholder="Amount">
-                <button onclick="addCategory()" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Add Category</button>
+                <!-- Expense Categories -->
+                <div class="mb-4 fade-in">
+                    <label class="block text-sm font-medium text-gray-700">Expenses (₹)</label>
+                    <div class="flex justify-end mb-2">
+                        <select id="sortCategories" class="p-2 border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition" data-tooltip="Sort expense categories" onchange="sortCategories()" aria-label="Sort Expenses">
+                            <option value="name">Sort by Name</option>
+                            <option value="amount">Sort by Amount</option>
+                        </select>
+                    </div>
+                    <div id="expenseCategories" class="grid grid-cols-2 gap-4"></div>
+                    <div class="mt-3 flex space-x-3">
+                        <input id="newCategoryName" type="text" class="p-3 border rounded-lg flex-1 tooltip focus:ring-2 focus:ring-blue-500 transition" data-tooltip="Enter new category name" placeholder="New category name" aria-label="New Category Name">
+                        <input id="newCategoryAmount" type="number" min="0" step="0.01" class="p-3 border rounded-lg w-1/3 tooltip focus:ring-2 focus:ring-blue-500 transition" data-tooltip="Enter amount" placeholder="Amount" aria-label="New Category Amount">
+                        <button onclick="addCategory()" class="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 tooltip transition transform hover:scale-105" data-tooltip="Add new expense category" aria-label="Add Category"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+
+                <!-- Expense Notes -->
+                <div class="mb-4 fade-in">
+                    <label for="expenseNotes" class="block text-sm font-medium text-gray-700">Expense Notes</label>
+                    <textarea id="expenseNotes" class="mt-1 p-3 w-full border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition" data-tooltip="Add notes for expenses" placeholder="Add notes for expenses" aria-label="Expense Notes"></textarea>
+                </div>
             </div>
         </div>
 
-        <!-- Expense Notes -->
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Expense Notes</label>
-            <textarea id="expenseNotes" class="mt-1 p-2 w-full border rounded" placeholder="Add notes for expenses"></textarea>
+        <!-- Savings Goals Section -->
+        <div class="mb-6">
+            <div class="collapsible-header bg-gray-50 p-4 rounded-lg flex justify-between items-center" onclick="toggleCollapsible('savingsGoals')">
+                <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-200"><i class="fas fa-piggy-bank mr-2"></i>Savings Goals</h2>
+                <i class="fas fa-chevron-down" id="savingsGoalsChevron"></i>
+            </div>
+            <div id="savingsGoals" class="collapsible-content mt-4">
+                <div class="mb-4 fade-in">
+                    <label for="savingsGoal" class="block text-sm font-medium text-gray-700">Savings Goal (₹)</label>
+                    <input id="savingsGoal" type="number" min="0" step="0.01" class="mt-1 p-3 w-full border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition" data-tooltip="Set your savings goal" placeholder="Enter savings goal" aria-label="Savings Goal">
+                    <p class="error-message">Savings goal cannot be negative.</p>
+                </div>
+                <div class="mb-4 fade-in">
+                    <label for="currentSavings" class="block text-sm font-medium text-gray-700">Current Savings (₹)</label>
+                    <input id="currentSavings" type="number" min="0" step="0.01" class="mt-1 p-3 w-full border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition" data-tooltip="Enter your current savings" placeholder="Enter current savings" aria-label="Current Savings">
+                    <p class="error-message">Current savings cannot be negative.</p>
+                </div>
+                <div class="mb-4 fade-in">
+                    <label for="interestRate" class="block text-sm font-medium text-gray-700">Annual Interest Rate (%)</label>
+                    <input id="interestRate" type="number" min="0" step="0.01" class="mt-1 p-3 w-full border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition" data-tooltip="Enter expected annual interest rate" placeholder="Enter interest rate (e.g., 5 for 5%)" aria-label="Interest Rate">
+                    <p class="error-message">Interest rate cannot be negative.</p>
+                </div>
+                <div class="mb-4 fade-in">
+                    <label for="planMonths" class="block text-sm font-medium text-gray-700">Months to Plan</label>
+                    <input id="planMonths" type="number" min="1" step="1" class="mt-1 p-3 w-full border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition" data-tooltip="Number of months for projection" placeholder="Enter number of months" value="12" aria-label="Plan Months">
+                    <p class="error-message">Plan months must be at least 1.</p>
+                </div>
+            </div>
         </div>
 
-        <!-- Savings Goals -->
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Savings Goal (₹)</label>
-            <input id="savingsGoal" type="number" min="0" step="0.01" class="mt-1 p-2 w-full border rounded" placeholder="Enter savings goal">
-        </div>
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Current Savings (₹)</label>
-            <input id="currentSavings" type="number" min="0" step="0.01" class="mt-1 p-2 w-full border rounded" placeholder="Enter current savings">
-        </div>
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Annual Interest Rate (%)</label>
-            <input id="interestRate" type="number" min="0" step="0.01" class="mt-1 p-2 w-full border rounded" placeholder="Enter interest rate (e.g., 5 for 5%)">
-        </div>
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Months to Plan</label>
-            <input id="planMonths" type="number" min="1" step="1" class="mt-1 p-2 w-full border rounded" placeholder="Enter number of months" value="12">
+        <!-- Historical Data Section -->
+        <div class="mb-6">
+            <div class="collapsible-header bg-gray-50 p-4 rounded-lg flex justify-between items-center" onclick="toggleCollapsible('historicalData')">
+                <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-200"><i class="fas fa-history mr-2"></i>Past Data</h2>
+                <i class="fas fa-chevron-down" id="historicalDataChevron"></i>
+            </div>
+            <div id="historicalData" class="collapsible-content mt-4">
+                <div class="mb-4 fade-in">
+                    <label for="historySelect" class="block text-sm font-medium text-gray-700">View/Edit Past Data</label>
+                    <select id="historySelect" class="mt-1 p-3 w-full border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition" data-tooltip="Select a month to view or edit" onchange="loadHistoricalData()" aria-label="Select Past Month">
+                        <option value="">Select Month</option>
+                    </select>
+                    <div class="flex space-x-3 mt-3">
+                        <button onclick="editHistoricalData()" class="flex-1 bg-yellow-500 text-white p-3 rounded-lg hover:bg-yellow-600 tooltip transition transform hover:scale-105" data-tooltip="Edit selected month's data" aria-label="Edit Past Data">Edit</button>
+                        <button onclick="saveHistoricalData()" class="flex-1 bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 tooltip transition transform hover:scale-105" data-tooltip="Save changes to selected month" disabled id="saveHistoryBtn" aria-label="Save Past Data">Save</button>
+                    </div>
+                </div>
+                <div class="mb-4 fade-in">
+                    <label for="importFile" class="block text-sm font-medium text-gray-700">Import Savings History</label>
+                    <input id="importFile" type="file" accept=".csv" class="mt-1 p-3 w-full border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition" data-tooltip="Upload a CSV file with savings history" aria-label="Import File">
+                    <button onclick="importData()" class="mt-3 bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 tooltip transition transform hover:scale-105" data-tooltip="Import savings history from CSV" aria-label="Import Data">Import</button>
+                </div>
+            </div>
         </div>
 
-        <!-- Data Import -->
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Import Savings History</label>
-            <input id="importFile" type="file" accept=".csv" class="mt-1 p-2 w-full border rounded">
-            <button onclick="importData()" class="mt-2 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Import</button>
-        </div>
-
-        <div class="flex space-x-4">
-            <button onclick="calculateBudget()" class="flex-1 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Analyze Budget</button>
-            <button onclick="resetSavings()" class="flex-1 bg-red-500 text-white p-2 rounded hover:bg-red-600">Reset Savings</button>
-            <button onclick="exportData()" class="flex-1 bg-green-500 text-white p-2 rounded hover:bg-green-600">Export Data</button>
-            <button onclick="backupData()" class="flex-1 bg-purple-500 text-white p-2 rounded hover:bg-purple-600">Backup Data</button>
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0 mb-8 sticky-btn">
+            <button onclick="calculateBudget()" class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-4 rounded-lg text-xl font-semibold hover:from-blue-700 hover:to-blue-900 tooltip transition transform hover:scale-105 pulse" data-tooltip="Analyze your budget" aria-label="Analyze Budget">Analyze Budget</button>
+            <button onclick="resetSavings()" class="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 tooltip transition transform hover:scale-105" data-tooltip="Clear all savings data" aria-label="Reset Savings">Reset Savings</button>
+            <button onclick="exportData()" class="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 tooltip transition transform hover:scale-105" data-tooltip="Export savings history as CSV" aria-label="Export Data">Export Data</button>
+            <button onclick="backupData()" class="bg-purple-500 text-white p-3 rounded-lg hover:bg-purple-600 tooltip transition transform hover:scale-105" data-tooltip="Download backup as JSON" aria-label="Backup Data">Backup Data</button>
         </div>
 
         <!-- Results -->
-        <div id="result" class="mt-6 space-y-4"></div>
-        <canvas id="expenseChart" class="mt-4"></canvas>
-        <canvas id="savingsChart" class="mt-4"></canvas>
+        <div id="result" class="mt-8 space-y-6 fade-in" role="region" aria-live="polite"></div>
+
+        <!-- Visualization Sections -->
+        <div class="mt-6 fade-in">
+            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200">Expense Breakdown Chart</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                This chart shows how your money is spent across different categories (like Housing, Groceries, etc.). Each slice represents a category, and the size shows how much you spend on it.
+            </p>
+            <canvas id="expenseChart" class="max-w-full"></canvas>
+        </div>
+        <div class="mt-6 fade-in">
+            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200">Savings Over Time</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                This graph shows your savings for each month. The line tracks how your savings change over time, helping you see your progress.
+            </p>
+            <canvas id="savingsChart" class="max-w-full"></canvas>
+        </div>
     </div>
 
     <script>
@@ -109,36 +264,59 @@
         ];
         let expenseChart = null;
         let savingsChart = null;
+        let editingMonth = null;
 
         // Initialize categories
         function renderCategories() {
             const container = document.getElementById('expenseCategories');
             container.innerHTML = customCategories.map(cat => `
-                <div>
-                    <label class="block text-xs text-gray-600">${cat.name}</label>
-                    <input id="${cat.id}" type="number" min="0" step="0.01" class="mt-1 p-2 w-full border rounded" placeholder="${cat.name}" value="${cat.amount}">
-                    <button onclick="removeCategory('${cat.id}')" class="text-red-500 text-xs mt-1">Remove</button>
+                <div class="fade-in">
+                    <label for="${cat.id}" class="block text-xs text-gray-600">${cat.name}</label>
+                    <input id="${cat.id}" type="number" min="0" step="0.01" class="mt-1 p-3 w-full border rounded-lg expense-input tooltip focus:ring-2 focus:ring-blue-500 transition" data-tooltip="Enter ${cat.name} expenses" placeholder="${cat.name}" value="${cat.amount}" oninput="calculateBudget()" aria-label="${cat.name} Expenses">
+                    <p class="error-message">Expense cannot be negative.</p>
+                    <button onclick="removeCategory('${cat.id}')" class="text-red-500 text-xs mt-1 tooltip transition hover:text-red-600" data-tooltip="Remove this category" aria-label="Remove ${cat.name} Category">Remove</button>
                 </div>
             `).join('');
         }
 
         function addCategory() {
-            const name = document.getElementById('newCategoryName').value.trim();
-            const amount = parseFloat(document.getElementById('newCategoryAmount').value) || 0;
-            if (name) {
-                const id = 'cat' + Date.now();
-                customCategories.push({ id, name, amount });
-                localStorage.setItem('customCategories', JSON.stringify(customCategories));
-                document.getElementById('newCategoryName').value = '';
-                document.getElementById('newCategoryAmount').value = '';
-                renderCategories();
+            const nameInput = document.getElementById('newCategoryName');
+            const amountInput = document.getElementById('newCategoryAmount');
+            const name = nameInput.value.trim();
+            const amount = parseFloat(amountInput.value) || 0;
+            if (!name) {
+                nameInput.classList.add('invalid');
+                nameInput.nextElementSibling.textContent = 'Category name cannot be empty.';
+                nameInput.nextElementSibling.style.display = 'block';
+                return;
             }
+            nameInput.classList.remove('invalid');
+            nameInput.nextElementSibling.style.display = 'none';
+            const id = 'cat' + Date.now();
+            customCategories.push({ id, name, amount });
+            localStorage.setItem('customCategories', JSON.stringify(customCategories));
+            nameInput.value = '';
+            amountInput.value = '';
+            renderCategories();
+            calculateBudget();
         }
 
         function removeCategory(id) {
             customCategories = customCategories.filter(cat => cat.id !== id);
             localStorage.setItem('customCategories', JSON.stringify(customCategories));
             renderCategories();
+            calculateBudget();
+        }
+
+        function sortCategories() {
+            const sortBy = document.getElementById('sortCategories').value;
+            customCategories.sort((a, b) => {
+                if (sortBy === 'name') return a.name.localeCompare(b.name);
+                return b.amount - a.amount;
+            });
+            localStorage.setItem('customCategories', JSON.stringify(customCategories));
+            renderCategories();
+            calculateBudget();
         }
 
         // Budget Templates
@@ -158,41 +336,133 @@
                     cat.amount = data[cat.id] || 0;
                 });
                 localStorage.setItem('customCategories', JSON.stringify(customCategories));
+                calculateBudget();
             }
+        }
+
+        // Historical Data Navigation
+        function updateHistorySelect() {
+            const select = document.getElementById('historySelect');
+            select.innerHTML = '<option value="">Select Month</option>' + 
+                monthlySavingsHistory.map((entry, index) => `<option value="${index}">${entry.month}</option>`).join('');
+        }
+
+        function loadHistoricalData() {
+            const index = document.getElementById('historySelect').value;
+            if (index === '') return;
+            editingMonth = parseInt(index);
+            const entry = monthlySavingsHistory[editingMonth];
+            document.getElementById('income').value = entry.income || '';
+            customCategories.forEach(cat => {
+                document.getElementById(cat.id).value = entry.expenses?.[cat.id] || 0;
+                cat.amount = entry.expenses?.[cat.id] || 0;
+            });
+            document.getElementById('expenseNotes').value = entry.notes || '';
+            document.getElementById('saveHistoryBtn').disabled = false;
+            calculateBudget();
+        }
+
+        function editHistoricalData() {
+            const index = document.getElementById('historySelect').value;
+            if (index === '') {
+                notifyUser('Error', 'Please select a month to edit.');
+                return;
+            }
+            document.getElementById('saveHistoryBtn').disabled = false;
+        }
+
+        function saveHistoricalData() {
+            if (editingMonth === null) return;
+            const income = parseFloat(document.getElementById('income').value) || 0;
+            const expenseNotes = document.getElementById('expenseNotes').value;
+            const expenses = {};
+            customCategories.forEach(cat => {
+                expenses[cat.id] = parseFloat(document.getElementById(cat.id).value) || 0;
+            });
+            const totalExpenses = Object.values(expenses).reduce((sum, val) => sum + val, 0);
+            monthlySavingsHistory[editingMonth] = {
+                month: monthlySavingsHistory[editingMonth].month,
+                savings: income - totalExpenses,
+                income,
+                expenses,
+                notes: expenseNotes
+            };
+            localStorage.setItem('monthlySavingsHistory', JSON.stringify(monthlySavingsHistory));
+            document.getElementById('saveHistoryBtn').disabled = true;
+            editingMonth = null;
+            document.getElementById('historySelect').value = '';
+            notifyUser('Data Saved', 'Historical data updated successfully.');
+            calculateBudget();
         }
 
         // AI Integration for Budget Suggestions
         function getAISuggestions(income, totalExpenses, savingsRate) {
             let suggestions = [];
             if (savingsRate < 10) {
-                suggestions.push("Savings rate is below 10%. Consider reducing discretionary spending (e.g., entertainment, accessories) by 10-20%.");
+                suggestions.push("Your savings are less than 10% of your income. Try cutting back on things like entertainment or accessories by 10-20%.");
             }
             if (totalExpenses / income > 0.8) {
-                suggestions.push("Expenses exceed 80% of income. Review high-cost categories like housing or transport for savings opportunities.");
+                suggestions.push("You're spending more than 80% of your income. Look at big expenses like housing or transport to save more.");
             }
             if (income > 0 && savingsRate > 20) {
-                suggestions.push("Great job! Your savings rate is above 20%. Consider investing excess savings for higher returns.");
+                suggestions.push("Awesome! You're saving over 20% of your income. You could put some money in fixed deposits or mutual funds to grow it.");
             }
-            return suggestions.length ? `<div class="bg-yellow-100 p-4 rounded"><h3 class="text-lg font-semibold">AI Suggestions</h3><ul>${suggestions.map(s => `<li>${s}</li>`).join('')}</ul></div>` : '';
+            return suggestions.length ? `<div class="bg-yellow-100 p-4 rounded-lg fade-in"><h3 class="text-lg font-semibold">Budget Tips</h3><ul class="list-disc pl-5">${suggestions.map(s => `<li>${s}</li>`).join('')}</ul></div>` : '';
         }
 
         function calculateBudget() {
             // Get input values
-            const income = parseFloat(document.getElementById('income').value) || 0;
-            const savingsGoal = parseFloat(document.getElementById('savingsGoal').value) || 0;
-            const currentSavings = parseFloat(document.getElementById('currentSavings').value) || 0;
-            const interestRate = parseFloat(document.getElementById('interestRate').value) || 0;
-            const planMonths = parseInt(document.getElementById('planMonths').value) || 12;
+            const incomeInput = document.getElementById('income');
+            const income = parseFloat(incomeInput.value) || 0;
+            const savingsGoalInput = document.getElementById('savingsGoal');
+            const savingsGoal = parseFloat(savingsGoalInput.value) || 0;
+            const currentSavingsInput = document.getElementById('currentSavings');
+            const currentSavings = parseFloat(currentSavingsInput.value) || 0;
+            const interestRateInput = document.getElementById('interestRate');
+            const interestRate = parseFloat(interestRateInput.value) || 0;
+            const planMonthsInput = document.getElementById('planMonths');
+            const planMonths = parseInt(planMonthsInput.value) || 12;
             const expenseNotes = document.getElementById('expenseNotes').value;
 
-            // Update category amounts
-            customCategories.forEach(cat => {
-                cat.amount = parseFloat(document.getElementById(cat.id).value) || 0;
+            // Validate inputs
+            const inputs = [
+                { input: incomeInput, message: 'Income cannot be negative or empty.', condition: income < 0 || !incomeInput.value },
+                { input: savingsGoalInput, message: 'Savings goal cannot be negative.', condition: savingsGoal < 0 },
+                { input: currentSavingsInput, message: 'Current savings cannot be negative.', condition: currentSavings < 0 },
+                { input: interestRateInput, message: 'Interest rate cannot be negative.', condition: interestRate < 0 },
+                { input: planMonthsInput, message: 'Plan months must be at least 1.', condition: planMonths < 1 }
+            ];
+            let hasError = false;
+            inputs.forEach(({ input, message, condition }) => {
+                const errorEl = input.nextElementSibling;
+                if (condition) {
+                    input.classList.add('invalid');
+                    errorEl.textContent = message;
+                    errorEl.style.display = 'block';
+                    hasError = true;
+                } else {
+                    input.classList.remove('invalid');
+                    errorEl.style.display = 'none';
+                }
             });
 
-            // Validate inputs
-            if (income < 0 || customCategories.some(cat => cat.amount < 0) || savingsGoal < 0 || currentSavings < 0 || interestRate < 0 || planMonths < 1) {
-                document.getElementById('result').innerHTML = '<p class="text-red-500">Please enter non-negative values and at least 1 month.</p>';
+            // Update and validate category amounts
+            customCategories.forEach(cat => {
+                const input = document.getElementById(cat.id);
+                cat.amount = parseFloat(input.value) || 0;
+                const errorEl = input.nextElementSibling;
+                if (cat.amount < 0) {
+                    input.classList.add('invalid');
+                    errorEl.style.display = 'block';
+                    hasError = true;
+                } else {
+                    input.classList.remove('invalid');
+                    errorEl.style.display = 'none';
+                }
+            });
+
+            if (hasError) {
+                document.getElementById('result').innerHTML = '<p class="text-red-500 font-semibold">Please fix the errors above.</p>';
                 return;
             }
 
@@ -202,6 +472,28 @@
             const savingsRate = income > 0 ? (monthlySavings / income * 100).toFixed(2) : 0;
             const remainingGoal = savingsGoal - currentSavings;
             const monthsToGoal = monthlySavings > 0 ? Math.ceil(remainingGoal / monthlySavings) : 'N/A';
+
+            // Predict current savings
+            const today = new Date();
+            const monthsSinceLast = monthlySavingsHistory.reduce((months, entry) => {
+                const [month, year] = entry.month.split(' ');
+                const entryDate = new Date(`${month} 1, ${year}`);
+                return Math.max(months, (today.getFullYear() - entryDate.getFullYear()) * 12 + today.getMonth() - entryDate.getMonth());
+            }, 0);
+            const predictedSavings = currentSavings + monthlySavings * monthsSinceLast * Math.pow(1 + interestRate / 100 / 12, monthsSinceLast);
+
+            // Year-wise analysis
+            const yearlySavings = monthlySavingsHistory.reduce((acc, entry) => {
+                const year = entry.month.split(' ')[1];
+                acc[year] = (acc[year] || 0) + entry.savings;
+                return acc;
+            }, {});
+            const yearWiseSummary = `
+                <div class="bg-gray-50 p-4 rounded-lg fade-in">
+                    <h3 class="text-lg font-semibold">Year-Wise Savings</h3>
+                    ${Object.entries(yearlySavings).map(([year, amount]) => `<p>${year}: ₹${amount.toFixed(2)}</p>`).join('')}
+                </div>
+            `;
 
             // Savings forecast with compound interest
             const monthlyRate = interestRate / 100 / 12;
@@ -216,14 +508,21 @@
                 alerts = '<p class="text-yellow-500 font-semibold mt-2">Alert: Expenses are over 70% of income. Consider cutting back.</p>';
             }
 
-            // Store monthly savings
-            const currentMonth = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
-            monthlySavingsHistory.push({ month: currentMonth, savings: monthlySavings, notes: expenseNotes });
-            localStorage.setItem('monthlySavingsHistory', JSON.stringify(monthlySavingsHistory));
+            // Store monthly savings if not editing
+            if (editingMonth === null) {
+                const currentMonth = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+                const expenses = {};
+                customCategories.forEach(cat => {
+                    expenses[cat.id] = cat.amount;
+                });
+                monthlySavingsHistory.push({ month: currentMonth, savings: monthlySavings, income, expenses, notes: expenseNotes });
+                localStorage.setItem('monthlySavingsHistory', JSON.stringify(monthlySavingsHistory));
+            }
+            updateHistorySelect();
 
             // Generate expense breakdown
             const expenseBreakdown = `
-                <div class="bg-gray-50 p-4 rounded">
+                <div class="bg-gray-50 p-4 rounded-lg fade-in">
                     <h3 class="text-lg font-semibold">Expense Breakdown</h3>
                     ${customCategories.map(cat => `<p>${cat.name}: ₹${cat.amount.toFixed(2)} (${totalExpenses > 0 ? ((cat.amount / totalExpenses) * 100).toFixed(1) : 0}%)</p>`).join('')}
                 </div>
@@ -232,11 +531,12 @@
             // Generate savings progress
             const progressPercentage = savingsGoal > 0 ? (currentSavings / savingsGoal * 100).toFixed(1) : 0;
             const savingsProgress = `
-                <div class="bg-gray-50 p-4 rounded">
+                <div class="bg-gray-50 p-4 rounded-lg fade-in">
                     <h3 class="text-lg font-semibold">Savings Progress</h3>
                     <p>Current: ₹${currentSavings.toFixed(2)} / Goal: ₹${savingsGoal.toFixed(2)}</p>
+                    <p>Predicted Current Savings: ₹${predictedSavings.toFixed(2)}</p>
                     <div class="w-full bg-gray-200 rounded-full h-4 mt-2">
-                        <div class="bg-blue-500 h-4 rounded-full" style="width: ${progressPercentage}%"></div>
+                        <div class="bg-blue-500 h-4 rounded-full progress-bar" style="width: ${progressPercentage}%"></div>
                     </div>
                     <p>${progressPercentage}% of goal achieved</p>
                     <p>Time to Goal: ${monthsToGoal !== 'N/A' ? monthsToGoal + ' months' : 'Increase income or reduce expenses'}</p>
@@ -246,7 +546,7 @@
 
             // Generate monthly savings history
             const savingsHistory = `
-                <div class="bg-gray-50 p-4 rounded">
+                <div class="bg-gray-50 p-4 rounded-lg fade-in">
                     <h3 class="text-lg font-semibold">Monthly Savings History</h3>
                     ${monthlySavingsHistory.map(entry => `<p>${entry.month}: ₹${entry.savings.toFixed(2)} ${entry.notes ? `(${entry.notes})` : ''}</p>`).join('')}
                 </div>
@@ -257,11 +557,14 @@
 
             // Generate result
             let result = `
-                <p class="text-lg"><strong>Monthly Savings:</strong> ₹${monthlySavings.toFixed(2)}</p>
-                <p class="text-lg"><strong>Savings Rate:</strong> ${savingsRate}%</p>
+                <div class="bg-blue-50 p-4 rounded-lg fade-in">
+                    <p class="text-xl font-bold text-blue-700"><strong>Monthly Savings:</strong> ₹${monthlySavings.toFixed(2)}</p>
+                    <p class="text-xl font-bold text-blue-700"><strong>Savings Rate:</strong> ${savingsRate}%</p>
+                </div>
                 ${expenseBreakdown}
                 ${savingsProgress}
                 ${savingsHistory}
+                ${yearWiseSummary}
                 ${aiSuggestions}
                 ${alerts}
             `;
@@ -287,7 +590,14 @@
                 },
                 options: {
                     responsive: true,
-                    plugins: { legend: { position: 'bottom' } }
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: { callbacks: { label: ctx => `${ctx.label}: ₹${ctx.raw.toFixed(2)}` } }
+                    },
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true
+                    }
                 }
             });
 
@@ -307,7 +617,12 @@
                 },
                 options: {
                     responsive: true,
-                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Savings (₹)' } } }
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Savings (₹)' } } },
+                    plugins: { tooltip: { callbacks: { label: ctx => `Savings: ₹${ctx.raw.toFixed(2)}` } } },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    }
                 }
             });
         }
@@ -315,7 +630,8 @@
         function resetSavings() {
             monthlySavingsHistory = [];
             localStorage.setItem('monthlySavingsHistory', JSON.stringify(monthlySavingsHistory));
-            document.getElementById('result').innerHTML = '<p class="text-green-500">Savings history reset!</p>';
+            document.getElementById('result').innerHTML = '<p class="text-green-500 font-semibold">Savings history reset!</p>';
+            document.getElementById('historySelect').innerHTML = '<option value="">Select Month</option>';
             if (expenseChart) expenseChart.destroy();
             if (savingsChart) savingsChart.destroy();
             notifyUser('Data Reset', 'Savings history has been reset.');
@@ -323,7 +639,8 @@
 
         function exportData() {
             const dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(
-                "Month,Savings (INR),Notes\n" + monthlySavingsHistory.map(entry => `${entry.month},${entry.savings.toFixed(2)},${entry.notes || ''}`).join('\n')
+                "Month,Savings (INR),Income (INR),Notes\n" + 
+                monthlySavingsHistory.map(entry => `${entry.month},${entry.savings.toFixed(2)},${entry.income || 0},${entry.notes || ''}`).join('\n')
             );
             const link = document.createElement('a');
             link.setAttribute('href', dataStr);
@@ -338,16 +655,18 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const text = e.target.result;
-                    const rows = text.split('\n').slice(1); // Skip header
+                    const rows = text.split('\n').slice(1);
                     monthlySavingsHistory = rows
                         .filter(row => row.trim())
                         .map(row => {
-                            const [month, savings, notes] = row.split(',');
-                            return { month, savings: parseFloat(savings) || 0, notes };
+                            const [month, savings, income, notes] = row.split(',');
+                            return { month, savings: parseFloat(savings) || 0, income: parseFloat(income) || 0, notes };
                         });
                     localStorage.setItem('monthlySavingsHistory', JSON.stringify(monthlySavingsHistory));
-                    document.getElementById('result').innerHTML = '<p class="text-green-500">Data imported successfully!</p>';
+                    document.getElementById('result').innerHTML = '<p class="text-green-500 font-semibold">Data imported successfully!</p>';
+                    updateHistorySelect();
                     notifyUser('Data Imported', 'Savings history imported successfully.');
+                    calculateBudget();
                 };
                 reader.readAsText(file);
             }
@@ -381,12 +700,23 @@
 
         function toggleTheme() {
             document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+            const isDark = document.documentElement.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            document.getElementById('themeIcon').textContent = isDark ? '🌙' : '💡';
+        }
+
+        function toggleCollapsible(sectionId) {
+            const content = document.getElementById(sectionId);
+            const chevron = document.getElementById(`${sectionId}Chevron`);
+            content.classList.toggle('open');
+            chevron.classList.toggle('fa-chevron-down');
+            chevron.classList.toggle('fa-chevron-up');
         }
 
         // Initialize theme
         if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.classList.add('dark');
+            document.getElementById('themeIcon').textContent = '🌙';
         }
 
         // Request notification permission
@@ -394,8 +724,15 @@
             Notification.requestPermission();
         }
 
+        // Real-time calculation on input
+        document.querySelectorAll('input, textarea').forEach(input => {
+            input.addEventListener('input', calculateBudget);
+        });
+
         // Initial render
         renderCategories();
+        updateHistorySelect();
+        calculateBudget();
     </script>
 </body>
 </html>
