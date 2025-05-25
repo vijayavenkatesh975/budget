@@ -9,16 +9,13 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <style>
-        /* Dark Mode Styles */
         .dark { background-color: #111827; color: #e5e7eb; }
         .dark .bg-white { background-color: #1f2937; }
         .dark .bg-gray-50 { background-color: #374151; }
         .dark .text-gray-700 { color: #e5e7eb; }
-        .dark .text-gray-600 { color: #9ca3af; }
         .dark .border { border-color: #4b5563; }
         .invalid { border-color: #f87171 !important; outline: none; }
 
-        /* Section-Specific Gradients */
         .section-budget { background: linear-gradient(135deg, #0d9488, #2dd4bf); }
         .section-income { background: linear-gradient(135deg, #15803d, #22c55e); }
         .section-expenses { background: linear-gradient(135deg, #c2410c, #f97316); }
@@ -28,13 +25,11 @@
         .section-import { background: linear-gradient(135deg, #3730a3, #6366f1); }
         .section-actions { background: linear-gradient(135deg, #4b5563, #6b7280); }
         .section-results { background: linear-gradient(135deg, #0e7490, #06b6d4); }
+        .section-monthly-pie { background: linear-gradient(135deg, #047857, #10b981); }
+        .section-monthly-bar { background: linear-gradient(135deg, #b91c1c, #f87171); }
+        .section-yearly-chart { background: linear-gradient(135deg, #7e22ce, #c084fc); }
+        .section-yearly-compare { background: linear-gradient(135deg, #1e3a8a, #60a5fa); }
 
-        /* Visualization Section Gradients */
-        .section-category-pie { background: linear-gradient(135deg, #0e7490, #06b6d4); }
-        .section-goal-chart { background: linear-gradient(135deg, #3730a3, #6366f1); }
-        .section-savings-chart { background: linear-gradient(135deg, #6b21a8, #a855f7); }
-
-        /* Dark Mode Section Adjustments */
         .dark .section-budget { background: linear-gradient(135deg, #0f766e, #14b8a6); }
         .dark .section-income { background: linear-gradient(135deg, #166534, #16a34a); }
         .dark .section-expenses { background: linear-gradient(135deg, #9a3412, #ea580c); }
@@ -44,165 +39,66 @@
         .dark .section-import { background: linear-gradient(135deg, #312e81, #4f46e5); }
         .dark .section-actions { background: linear-gradient(135deg, #374151, #4b5563); }
         .dark .section-results { background: linear-gradient(135deg, #155e75, #0891b2); }
-        .dark .section-category-pie { background: linear-gradient(135deg, #155e75, #0891b2); }
-        .dark .section-goal-chart { background: linear-gradient(135deg, #312e81, #4f46e5); }
-        .dark .section-savings-chart { background: linear-gradient(135deg, #581c87, #9333ea); }
+        .dark .section-monthly-pie { background: linear-gradient(135deg, #065f46, #059669); }
+        .dark .section-monthly-bar { background: linear-gradient(135deg, #991b1b, #dc2626); }
+        .dark .section-yearly-chart { background: linear-gradient(135deg, #6d28d9, #a855f7); }
+        .dark .section-yearly-compare { background: linear-gradient(135deg, #1e40af, #3b82f6); }
 
-        /* Text Visibility */
-        .section-text { 
-            color: #ffffff; 
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5); 
-        }
-        .dark .section-text { 
-            color: #e5e7eb; 
-        }
-        .input-field { 
-            background-color: #f7fafc; 
-            color: #1a202c; 
-            border-color: #e2e8f0; 
-            transition: all 0.3s ease;
-            min-height: 48px;
-        }
-        .dark .input-field { 
-            background-color: #374151; 
-            color: #e5e7eb; 
-            border-color: #4b5563; 
-        }
-        .chart-container {
-            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-            border-radius: 0.5rem;
-            padding: 1rem;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
-        .chart-title { 
-            font-size: 1.5rem; 
-            font-weight: 700; 
-            color: #ffffff; 
-        }
-        .chart-desc { 
-            font-size: 0.875rem; 
-            color: #bfdbfe; 
-        }
-        .dark .chart-desc { 
-            color: #9ca3af; 
-        }
+        .section-text { color: #ffffff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5); }
+        .dark .section-text { color: #e5e7eb; }
+        .input-field { background-color: #f7fafc; color: #1a202c; border-color: #e2e8f0; transition: all 0.3s ease; min-height: 48px; }
+        .dark .input-field { background-color: #374151; color: #e5e7eb; border-color: #4b5563; }
+        .chart-container { border-radius: 0.5rem; padding: 1rem; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); }
+        .section-monthly-pie .chart-container { background: linear-gradient(135deg, #047857, #10b981); }
+        .section-monthly-bar .chart-container { background: linear-gradient(135deg, #b91c1c, #f87171); }
+        .section-yearly-chart .chart-container { background: linear-gradient(135deg, #7e22ce, #c084fc); }
+        .section-yearly-compare .chart-container { background: linear-gradient(135deg, #1e3a8a, #60a5fa); }
+        .dark .section-monthly-pie .chart-container { background: linear-gradient(135deg, #065f46, #059669); }
+        .dark .section-monthly-bar .chart-container { background: linear-gradient(135deg, #991b1b, #dc2626); }
+        .dark .section-yearly-chart .chart-container { background: linear-gradient(135deg, #6d28d9, #a855f7); }
+        .dark .section-yearly-compare .chart-container { background: linear-gradient(135deg, #1e40af, #3b82f6); }
+        .chart-title { font-size: 1.5rem; font-weight: 700; color: #ffffff; }
+        .chart-desc { font-size: 0.875rem; color: #bfdbfe; }
+        .dark .chart-desc { color: #9ca3af; }
 
-        /* Tooltip Styles */
         .tooltip { position: relative; }
         .tooltip:hover::after, .tooltip:focus::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            background: #1e3a8a;
-            color: #ffffff;
-            padding: 6px 10px;
-            border-radius: 4px;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: nowrap;
-            z-index: 10;
-            opacity: 0;
-            animation: fadeIn 0.3s forwards;
+            content: attr(data-tooltip); position: absolute; background: #1e3a8a; color: #ffffff;
+            padding: 6px 10px; border-radius: 4px; bottom: 100%; left: 50%; transform: translateX(-50%);
+            white-space: nowrap; z-index: 10; opacity: 0; animation: fadeIn 0.3s forwards;
         }
 
-        /* Progress Bar Animation */
-        .progress-bar {
-            transition: width 1.5s ease-in-out;
-        }
+        .progress-bar { transition: width 1.5s ease-in-out; }
 
-        /* Animations */
-        .slide-in {
-            opacity: 0;
-            transform: translateX(-20px);
-            animation: slideIn 0.5s ease-out forwards;
-            will-change: opacity, transform;
-        }
-        .zoom-in {
-            transform: scale(0.95);
-            animation: zoomIn 0.5s ease-out forwards;
-            will-change: transform;
-        }
-        .wipe {
-            animation: wipe 1s ease-out forwards;
-            will-change: clip-path;
-        }
-        @keyframes slideIn {
-            to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-        @keyframes zoomIn {
-            to { transform: scale(1); }
-        }
-        @keyframes wipe {
-            from { clip-path: inset(0 100% 0 0); }
-            to { clip-path: inset(0 0 0 0); }
-        }
+        .slide-in { opacity: 0; transform: translateX(-20px); animation: slideIn 0.5s ease-out forwards; }
+        @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeIn { to { opacity: 1; } }
 
-        /* Button Styles */
         .btn-analyze { background: linear-gradient(90deg, #1e40af, #3b82f6); }
         .btn-reset { background: linear-gradient(90deg, #b91c1c, #f87171); }
         .btn-export { background: linear-gradient(90deg, #15803d, #22c55e); }
         .btn-backup { background: linear-gradient(90deg, #4c1d95, #7c3aed); }
         .btn-analyze:hover, .btn-reset:hover, .btn-export:hover, .btn-backup:hover {
-            filter: brightness(1.1);
-            transform: scale(1.05);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-            will-change: transform, box-shadow;
+            filter: brightness(1.1); transform: scale(1.05); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); transition: all 0.3s ease;
         }
 
-        /* Accordion Styles */
-        .accordion-header {
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .section-category-pie .accordion-header { background: linear-gradient(135deg, #0e7490, #06b6d4, 0.75); }
-        .section-goal-chart .accordion-header { background: linear-gradient(135deg, #3730a3, #6366f1, 0.75); }
-        .section-savings-chart .accordion-header { background: linear-gradient(135deg, #6b21a8, #a855f7, 0.75); }
-        .dark .section-category-pie .accordion-header { background: linear-gradient(135deg, #155e75, #0891b2, 0.70); }
-        .dark .section-goal-chart .accordion-header { background: linear-gradient(135deg, #312e81, #4f46e5, 0.70); }
-        .dark .section-savings-chart .accordion-header { background: linear-gradient(135deg, #581c87, #9333ea, 0.70); }
-        .accordion-header:hover {
-            filter: brightness(1.1);
-            transform: scale(1.01);
-        }
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease, opacity 0.3s ease;
-            opacity: 0;
-            padding: 0 0.75rem;
-        }
-        .accordion-content.open {
-            max-height: 500px;
-            opacity: 1;
-            padding: 0.75rem;
-        }
+        .accordion-header { cursor: pointer; transition: background-color 0.3s ease; padding: 0.75rem; border-radius: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .section-monthly-pie .accordion-header { background: linear-gradient(135deg, #047857, #10b981, 0.75); }
+        .section-monthly-bar .accordion-header { background: linear-gradient(135deg, #b91c1c, #f87171, 0.75); }
+        .section-yearly-chart .accordion-header { background: linear-gradient(135deg, #7e22ce, #c084fc, 0.75); }
+        .section-yearly-compare .accordion-header { background: linear-gradient(135deg, #1e3a8a, #60a5fa, 0.75); }
+        .dark .section-monthly-pie .accordion-header { background: linear-gradient(135deg, #065f46, #059669, 0.70); }
+        .dark .section-monthly-bar .accordion-header { background: linear-gradient(135deg, #991b1b, #dc2626, 0.70); }
+        .dark .section-yearly-chart .accordion-header { background: linear-gradient(135deg, #6d28d9, #a855f7, 0.70); }
+        .dark .section-yearly-compare .accordion-header { background: linear-gradient(135deg, #1e40af, #3b82f6, 0.70); }
+        .accordion-header:hover { filter: brightness(1.1); }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; opacity: 0; padding: 0 0.75rem; }
+        .accordion-content.open { max-height: 500px; opacity: 1; padding: 0.75rem; }
 
-        /* Year Selector */
-        .year-selector {
-            background: linear-gradient(90deg, #1e40af, #3b82f6);
-            color: #ffffff;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            transition: all 0.3s ease;
-        }
-        .dark .year-selector {
-            background: linear-gradient(90deg, #1e3a8a, #2563eb);
-            color: #e5e7eb;
-        }
-        .year-selector:hover {
-            filter: brightness(1.1);
-        }
+        .year-selector { background: linear-gradient(90deg, #1e40af, #3b82f6); color: #ffffff; padding: 0.5rem; border-radius: 0.5rem; transition: all 0.3s ease; }
+        .dark .year-selector { background: linear-gradient(90deg, #1e3a8a, #2563eb); color: #e5e7eb; }
+        .year-selector:hover { filter: brightness(1.1); }
 
-        /* Responsive Adjustments */
         @media (max-width: 640px) {
             body { padding: 1rem; }
             .grid-cols-2 { grid-template-columns: 1fr; }
@@ -211,15 +107,8 @@
             canvas { max-height: 250px; }
             .chart-title { font-size: 1.25rem; }
             .chart-desc { font-size: 0.75rem; }
-            .input-field, .btn-analyze, .btn-reset, .btn-export, .btn-backup { 
-                font-size: 0.875rem; 
-                padding: 0.75rem; 
-            }
-            .section-budget, .section-income, .section-expenses, .section-notes, 
-            .section-savings, .section-history, .section-import, .section-actions, 
-            .section-results, .section-category-pie, .section-goal-chart, .section-savings-chart { 
-                padding: 1rem; 
-            }
+            .input-field, .btn-analyze, .btn-reset, .btn-export, .btn-backup { font-size: 0.875rem; padding: 0.75rem; }
+            .section-budget, .section-income, .section-expenses, .section-notes, .section-savings, .section-history, .section-import, .section-actions, .section-results, .section-monthly-pie, .section-monthly-bar, .section-yearly-chart, .section-yearly-compare { padding: 1rem; }
         }
     </style>
 </head>
@@ -229,17 +118,14 @@
             <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800 dark:text-white">Smart Budget Analyzer</h1>
         </div>
 
-        <!-- Theme Toggle -->
         <div class="flex justify-end mb-4">
             <button onclick="toggleTheme()" class="text-xl tooltip p-2 rounded-full bg-gradient-to-r from-blue-600 to-blue-400 text-white hover:shadow-lg transition transform hover:scale-105" data-tooltip="Toggle Theme" aria-label="Toggle Theme">
                 <span id="themeIcon">💡</span>
             </button>
         </div>
 
-        <!-- Budget Templates -->
         <div class="mb-4 section-budget p-4 sm:p-6 rounded-lg slide-in">
             <h2 class="text-lg sm:text-xl font-semibold mb-2 section-text">Budget Template</h2>
-            <p class="text-xs sm:text-sm mb-2 section-text">Select a predefined budget to start.</p>
             <select id="template" class="p-3 w-full border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition input-field hover:shadow-sm" data-tooltip="Choose a preset budget" onchange="applyTemplate()" aria-label="Budget Template">
                 <option value="none">None</option>
                 <option value="student">Student</option>
@@ -248,17 +134,13 @@
             </select>
         </div>
 
-        <!-- Income Input -->
         <div class="mb-4 section-income p-4 sm:p-6 rounded-lg slide-in">
             <h2 class="text-lg sm:text-xl font-semibold mb-2 section-text">Monthly Income</h2>
-            <p class="text-xs sm:text-sm mb-2 section-text">Enter your monthly income.</p>
             <input id="income" type="number" min="0" step="0.01" class="p-3 w-full border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition input-field hover:shadow-sm" data-tooltip="Enter monthly income" placeholder="Enter total income" required aria-required="true" autofocus>
         </div>
 
-        <!-- Expense Categories -->
         <div class="mb-4 section-expenses p-4 sm:p-6 rounded-lg slide-in">
             <h2 class="text-lg sm:text-xl font-semibold mb-2 section-text">Expenses</h2>
-            <p class="text-xs sm:text-sm mb-2 section-text">Track spending by category.</p>
             <div class="flex justify-end mb-2">
                 <select id="sortCategories" class="p-2 border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition input-field hover:shadow-sm" data-tooltip="Sort categories" onchange="sortCategories()" aria-label="Sort Expenses">
                     <option value="name">Sort by Name</option>
@@ -273,17 +155,13 @@
             </div>
         </div>
 
-        <!-- Expense Notes -->
         <div class="mb-4 section-notes p-4 sm:p-6 rounded-lg slide-in">
             <h2 class="text-lg sm:text-xl font-semibold mb-2 section-text">Expense Notes</h2>
-            <p class="text-xs sm:text-sm mb-2 section-text">Add notes for expenses.</p>
             <textarea id="expenseNotes" class="p-3 w-full border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition input-field hover:shadow-sm" data-tooltip="Add notes" placeholder="Add notes for expenses" aria-label="Expense Notes"></textarea>
         </div>
 
-        <!-- Savings Goals -->
         <div class="mb-4 section-savings p-4 sm:p-6 rounded-lg slide-in">
             <h2 class="text-lg sm:text-xl font-semibold mb-2 section-text">Savings Goals</h2>
-            <p class="text-xs sm:text-sm mb-2 section-text">Set and track your savings target.</p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                     <label for="savingsGoal" class="block text-xs sm:text-sm font-medium section-text">Savings Goal (₹)</label>
@@ -296,10 +174,8 @@
             </div>
         </div>
 
-        <!-- Historical Data Navigation -->
         <div class="mb-4 section-history p-4 sm:p-6 rounded-lg slide-in">
             <h2 class="text-lg sm:text-xl font-semibold mb-2 section-text">Historical Data</h2>
-            <p class="text-xs sm:text-sm mb-2 section-text">Review past budgets.</p>
             <div id="historyAccordion"></div>
             <div class="flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0 mt-3">
                 <button onclick="editHistoricalData()" class="flex-1 bg-yellow-500 text-white p-3 rounded-lg hover:bg-yellow-600 tooltip transition transform hover:scale-105 hover:shadow-lg" data-tooltip="Edit month" aria-label="Edit Past Data">Edit</button>
@@ -307,15 +183,12 @@
             </div>
         </div>
 
-        <!-- Data Import -->
         <div class="mb-4 section-import p-4 sm:p-6 rounded-lg slide-in">
             <h2 class="text-lg sm:text-xl font-semibold mb-2 section-text">Import Data</h2>
-            <p class="text-xs sm:text-sm mb-2 section-text">Upload a CSV to import history.</p>
             <input id="importFile" type="file" accept=".csv" class="p-3 w-full border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition input-field hover:shadow-sm" data-tooltip="Upload CSV" aria-label="Import File">
             <button onclick="importData()" class="mt-3 bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 tooltip transition transform hover:scale-105 hover:shadow-lg" data-tooltip="Import data" aria-label="Import Data">Import</button>
         </div>
 
-        <!-- Action Buttons -->
         <div class="mb-6 section-actions p-4 sm:p-6 rounded-lg slide-in">
             <div class="flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0">
                 <button onclick="calculateBudget()" class="btn-analyze text-white p-3 rounded-lg text-lg font-semibold tooltip transition transform hover:shadow-lg" data-tooltip="Analyze budget" aria-label="Analyze Budget">Analyze Budget</button>
@@ -325,54 +198,67 @@
             </div>
         </div>
 
-        <!-- Results -->
         <div id="result" class="mt-6 space-y-4 section-results p-4 sm:p-6 rounded-lg slide-in" role="region" aria-live="polite"></div>
 
-        <!-- Visualization Sections -->
-        <div class="mt-4 section-category-pie p-4 sm:p-6 rounded-lg slide-in">
-            <div class="accordion-header rounded-lg slide-in" onclick="toggleAccordion('category-pie-chart')">
-                <h3 class="chart-title">Category Expense Distribution</h3>
-                <i class="fas fa-chevron-down" id="category-pie-chart-chevron"></i>
+        <div class="mt-4 section-monthly-pie p-4 sm:p-6 rounded-lg slide-in">
+            <div class="accordion-header rounded-lg slide-in" onclick="toggleAccordion('monthly-pie')">
+                <h3 class="chart-title">Monthly Expense Distribution (Pie)</h3>
+                <i class="fas fa-chevron-down" id="monthly-pie-chevron"></i>
             </div>
-            <div id="category-pie-chart" class="accordion-content">
-                <p class="chart-desc mb-2">View the percentage share of each expense category.</p>
-                <select id="category-pie-year" class="year-selector mb-2 w-full tooltip" data-tooltip="Filter by year" onchange="updateCategoryPieChart()" aria-label="Select Year for Category Pie Chart"></select>
+            <div id="monthly-pie" class="accordion-content">
+                <p class="chart-desc mb-2">Percentage share of expense categories.</p>
+                <select id="monthly-pie-year" class="year-selector mb-2 w-full tooltip" data-tooltip="Filter by year" onchange="updateCategoryPieChart()" aria-label="Select Year for Monthly Pie Chart"></select>
                 <div class="chart-container">
                     <canvas id="categoryPieChart" class="max-w-full"></canvas>
                 </div>
             </div>
         </div>
-        <div class="mt-4 section-goal-chart p-4 sm:p-6 rounded-lg slide-in">
-            <div class="accordion-header rounded-lg slide-in" onclick="toggleAccordion('goal-chart')">
-                <h3 class="chart-title">Savings Goal Progress</h3>
-                <i class="fas fa-chevron-down" id="goal-chart-chevron"></i>
+
+        <div class="mt-4 section-monthly-bar p-4 sm:p-6 rounded-lg slide-in">
+            <div class="accordion-header rounded-lg slide-in" onclick="toggleAccordion('monthly-bar')">
+                <h3 class="chart-title">Monthly Expense Breakdown (Bar)</h3>
+                <i class="fas fa-chevron-down" id="monthly-bar-chevron"></i>
             </div>
-            <div id="goal-chart" class="accordion-content">
-                <p class="chart-desc mb-2">Track progress toward your savings goal.</p>
+            <div id="monthly-bar" class="accordion-content">
+                <p class="chart-desc mb-2">Expense amounts by category.</p>
+                <select id="monthly-bar-year" class="year-selector mb-2 w-full tooltip" data-tooltip="Filter by year" onchange="updateCategoryBarChart()" aria-label="Select Year for Monthly Bar Chart"></select>
                 <div class="chart-container">
-                    <canvas id="goalChart" class="max-w-full"></canvas>
+                    <canvas id="categoryBarChart" class="max-w-full"></canvas>
                 </div>
             </div>
         </div>
-        <div class="mt-4 section-savings-chart p-4 sm:p-6 rounded-lg slide-in">
-            <div class="accordion-header rounded-lg slide-in" onclick="toggleAccordion('savings-chart')">
-                <h3 class="chart-title">Savings Trend</h3>
-                <i class="fas fa-chevron-down" id="savings-chart-chevron"></i>
+
+        <div class="mt-4 section-yearly-chart p-4 sm:p-6 rounded-lg slide-in">
+            <div class="accordion-header rounded-lg slide-in" onclick="toggleAccordion('yearly-chart')">
+                <h3 class="chart-title">Yearly Savings Trend</h3>
+                <i class="fas fa-chevron-down" id="yearly-chart-chevron"></i>
             </div>
-            <div id="savings-chart" class="accordion-content">
-                <p class="chart-desc mb-2">Track your savings over time.</p>
-                <select id="savings-year" class="year-selector mb-2 w-full tooltip" data-tooltip="Filter by year" onchange="updateSavingsChart()" aria-label="Select Year for Savings Chart"></select>
+            <div id="yearly-chart" class="accordion-content">
+                <p class="chart-desc mb-2">Savings across 12 months.</p>
+                <select id="yearly-year" class="year-selector mb-2 w-full tooltip" data-tooltip="Filter by year" onchange="updateYearlyChart()" aria-label="Select Year for Yearly Chart"></select>
                 <div class="chart-container">
-                    <canvas id="savingsChart" class="max-w-full wipe"></canvas>
+                    <canvas id="yearlyChart" class="max-w-full"></canvas>
                 </div>
             </div>
         </div>
+
+        <div class="mt-4 section-yearly-compare p-4 sm:p-6 rounded-lg slide-in">
+            <div class="accordion-header rounded-lg slide-in" onclick="toggleAccordion('yearly-compare')">
+                <h3 class="chart-title">Savings Across Years</h3>
+                <i class="fas fa-chevron-down" id="yearly-compare-chevron"></i>
+            </div>
+            <div id="yearly-compare" class="accordion-content">
+                <p class="chart-desc mb-2">Total savings by year.</p>
+                <div class="chart-container">
+                    <canvas id="yearlyCompareChart" class="max-w-full"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // Register ChartDataLabels plugin
         Chart.register(ChartDataLabels);
 
-        // Load saved data
         let monthlySavingsHistory = JSON.parse(localStorage.getItem('monthlySavingsHistory')) || [];
         let customCategories = JSON.parse(localStorage.getItem('customCategories')) || [
             { id: 'housing', name: 'Housing', amount: 0 },
@@ -382,16 +268,59 @@
             { id: 'entertainment', name: 'Entertainment', amount: 0 },
             { id: 'other', name: 'Other', amount: 0 }
         ];
-        let savingsChart = null;
-        let goalChart = null;
         let categoryPieChart = null;
+        let categoryBarChart = null;
+        let yearlyChart = null;
+        let yearlyCompareChart = null;
         let editingMonth = null;
         let debounceTimeout = null;
 
-        // Initialize categories
+        const BudgetOptimizer = {
+            analyze: (income, totalExpenses, savingsRate, categories, currentSavings, savingsGoal, history) => {
+                const suggestions = [];
+                const scores = [];
+
+                const highExpenseCategory = categories.reduce((max, cat) => cat.amount > max.amount ? cat : max, { amount: 0 });
+                const expenseRatio = income > 0 ? totalExpenses / income : 0;
+                const goalProgress = savingsGoal > 0 ? currentSavings / savingsGoal : 0;
+                const avgSavings = history.length > 0 ? history.reduce((sum, entry) => sum + entry.savings, 0) / history.length : 0;
+                const savingsTrend = history.length > 1 ? (history[history.length - 1].savings - history[history.length - 2].savings) / history[history.length - 2].savings : 0;
+
+                if (savingsRate < 10) {
+                    suggestions.push(`Savings rate (${savingsRate}%) is low. Reduce ${highExpenseCategory.name} by ₹${(highExpenseCategory.amount * 0.15).toFixed(2)} (15%).`);
+                    scores.push(0.9);
+                }
+                if (expenseRatio > 0.8) {
+                    suggestions.push(`Expenses (${(expenseRatio * 100).toFixed(1)}% of income) are high. Cut non-essential spending like ${highExpenseCategory.name}.`);
+                    scores.push(0.8);
+                }
+                if (savingsRate > 20 && income > 0) {
+                    suggestions.push("Strong savings rate. Consider investing ₹${(monthlySavings * 0.5).toFixed(2)} in low-risk funds.");
+                    scores.push(0.6);
+                }
+                if (goalProgress < 0.5 && savingsGoal > 0) {
+                    suggestions.push(`Only ${(goalProgress * 100).toFixed(1)}% of savings goal achieved. Save ₹${((savingsGoal - currentSavings) / 12).toFixed(2)} monthly to meet goal in a year.`);
+                    scores.push(0.7);
+                }
+                if (savingsTrend < -0.1 && history.length > 1) {
+                    suggestions.push(`Savings dropped by ${Math.abs(savingsTrend * 100).toFixed(1)}% from last month. Review recent spending patterns.`);
+                    scores.push(0.85);
+                }
+                if (totalExpenses > avgSavings * 2 && avgSavings > 0) {
+                    suggestions.push(`Expenses are ${((totalExpenses / avgSavings).toFixed(1))}x higher than average savings. Prioritize essential categories.`);
+                    scores.push(0.75);
+                }
+
+                return suggestions
+                    .map((s, i) => ({ text: s, score: scores[i] }))
+                    .sort((a, b) => b.score - a.score)
+                    .slice(0, 3)
+                    .map(s => s.text);
+            }
+        };
+
         function renderCategories() {
-            const container = document.getElementById('expenseCategories');
-            container.innerHTML = customCategories.map(cat => `
+            document.getElementById('expenseCategories').innerHTML = customCategories.map(cat => `
                 <div class="slide-in">
                     <label for="${cat.id}" class="block text-xs section-text">${cat.name}</label>
                     <input id="${cat.id}" type="number" min="0" step="0.01" class="mt-1 p-3 w-full border rounded-lg expense-input tooltip focus:ring-2 focus:ring-blue-500 transition input-field hover:shadow-sm" data-tooltip="Enter ${cat.name} expenses" placeholder="${cat.name}" value="${cat.amount}" aria-label="${cat.name} Expenses">
@@ -403,7 +332,7 @@
         function addCategory() {
             const name = document.getElementById('newCategoryName').value.trim();
             const amount = parseFloat(document.getElementById('newCategoryAmount').value) || 0;
-            if (name) {
+            if (name && amount >= 0) {
                 const id = 'cat' + Date.now();
                 customCategories.push({ id, name, amount });
                 localStorage.setItem('customCategories', JSON.stringify(customCategories));
@@ -411,6 +340,8 @@
                 document.getElementById('newCategoryAmount').value = '';
                 renderCategories();
                 calculateBudget();
+            } else {
+                notifyUser('Error', 'Enter a valid category name and non-negative amount.');
             }
         }
 
@@ -423,16 +354,12 @@
 
         function sortCategories() {
             const sortBy = document.getElementById('sortCategories').value;
-            customCategories.sort((a, b) => {
-                if (sortBy === 'name') return a.name.localeCompare(b.name);
-                return b.amount - a.amount;
-            });
+            customCategories.sort((a, b) => sortBy === 'name' ? a.name.localeCompare(b.name) : b.amount - a.amount);
             localStorage.setItem('customCategories', JSON.stringify(customCategories));
             renderCategories();
             calculateBudget();
         }
 
-        // Budget Templates
         const templates = {
             student: { income: 10000, housing: 3000, groceries: 2000, transport: 1000, utilities: 500, entertainment: 1000, other: 500 },
             family: { income: 50000, housing: 15000, groceries: 8000, transport: 5000, utilities: 3000, entertainment: 2000, other: 3000 },
@@ -453,7 +380,6 @@
             }
         }
 
-        // Historical Data Navigation
         function updateHistoryAccordion() {
             const accordion = document.getElementById('historyAccordion');
             const years = [...new Set(monthlySavingsHistory.map(entry => entry.month.split(' ')[1]))].sort((a, b) => b - a);
@@ -486,8 +412,10 @@
             chevron.classList.toggle('fa-chevron-down');
             chevron.classList.toggle('fa-chevron-up');
             if (content.classList.contains('open')) {
-                if (id === 'savings-chart') updateSavingsChart();
-                if (id === 'category-pie-chart') updateCategoryPieChart();
+                if (id === 'monthly-pie') updateCategoryPieChart();
+                if (id === 'monthly-bar') updateCategoryBarChart();
+                if (id === 'yearly-chart') updateYearlyChart();
+                if (id === 'yearly-compare') updateYearlyCompareChart();
             }
         }
 
@@ -519,7 +447,7 @@
 
         function editHistoricalData() {
             if (editingMonth === null) {
-                notifyUser('Error', 'Please select a month to edit.');
+                notifyUser('Error', 'Select a month to edit.');
                 return;
             }
             document.getElementById('saveHistoryBtn').disabled = false;
@@ -549,32 +477,16 @@
             calculateBudget();
         }
 
-        // AI Suggestions
-        function getAISuggestions(income, totalExpenses, savingsRate) {
-            let suggestions = [];
-            if (savingsRate < 10) {
-                suggestions.push("Savings below 10%. Cut discretionary spending by 10-20%.");
-            }
-            if (totalExpenses / income > 0.8) {
-                suggestions.push("Spending over 80% of income. Review housing costs.");
-            }
-            if (income > 0 && savingsRate > 20) {
-                suggestions.push("Great savings! Consider investing in mutual funds.");
-            }
-            return suggestions.length ? `<div class="bg-yellow-100 p-3 rounded-lg slide-in dark:bg-yellow-900"><h3 class="text-base font-semibold text-gray-800 dark:text-white">Budget Tips</h3><ul class="list-disc pl-5 text-gray-700 dark:text-white">${suggestions.map(s => `<li>${s}</li>`).join('')}</ul></div>` : '';
-        }
-
-        // Year Selector Population
         function populateYearSelectors() {
             const years = [...new Set(monthlySavingsHistory.map(entry => entry.month.split(' ')[1]))].sort((a, b) => b - a);
             const currentYear = new Date().getFullYear().toString();
             if (!years.includes(currentYear)) years.unshift(currentYear);
-            const savingsYearSelect = document.getElementById('savings-year');
-            const categoryPieYearSelect = document.getElementById('category-pie-year');
-            savingsYearSelect.innerHTML = categoryPieYearSelect.innerHTML = years.map(year => `<option value="${year}" ${year === currentYear ? 'selected' : ''}>${year}</option>`).join('');
+            const selectors = ['monthly-pie-year', 'monthly-bar-year', 'yearly-year'];
+            selectors.forEach(id => {
+                document.getElementById(id).innerHTML = years.map(year => `<option value="${year}" ${year === currentYear ? 'selected' : ''}>${year}</option>`).join('');
+            });
         }
 
-        // Debounce function
         function debounce(func, wait) {
             return function(...args) {
                 clearTimeout(debounceTimeout);
@@ -583,21 +495,18 @@
         }
 
         function calculateBudget() {
-            // Get inputs
             const incomeInput = document.getElementById('income');
             const income = parseFloat(incomeInput.value) || 0;
             const savingsGoal = parseFloat(document.getElementById('savingsGoal').value) || 0;
             const currentSavings = parseFloat(document.getElementById('currentSavings').value) || 0;
             const expenseNotes = document.getElementById('expenseNotes').value;
 
-            // Update categories
             customCategories.forEach(cat => {
                 const input = document.getElementById(cat.id);
                 cat.amount = parseFloat(input.value) || 0;
                 input.classList.toggle('invalid', cat.amount < 0);
             });
 
-            // Validate inputs
             const inputs = [incomeInput, document.getElementById('savingsGoal'), document.getElementById('currentSavings')];
             inputs.forEach(input => input.classList.toggle('invalid', parseFloat(input.value) < 0 || (input.required && !input.value)));
             if (income < 0 || customCategories.some(cat => cat.amount < 0) || savingsGoal < 0 || currentSavings < 0) {
@@ -605,13 +514,11 @@
                 return;
             }
 
-            // Calculate metrics
             const totalExpenses = customCategories.reduce((sum, cat) => sum + cat.amount, 0);
             const monthlySavings = income - totalExpenses;
             const savingsRate = income > 0 ? (monthlySavings / income * 100).toFixed(2) : 0;
             const progressPercentage = savingsGoal > 0 ? (currentSavings / savingsGoal * 100).toFixed(1) : 0;
 
-            // Store savings
             if (editingMonth === null) {
                 const currentMonth = new Date().toLocaleString('default', { month: 'short', year: 'numeric' });
                 const existingEntry = monthlySavingsHistory.find(entry => entry.month === currentMonth);
@@ -632,7 +539,6 @@
             updateHistoryAccordion();
             populateYearSelectors();
 
-            // Expense breakdown
             const expenseBreakdown = `
                 <div class="bg-gray-50 p-3 rounded-lg slide-in dark:bg-gray-700">
                     <h3 class="text-base font-semibold text-gray-800 dark:text-white">Expense Breakdown</h3>
@@ -640,7 +546,6 @@
                 </div>
             `;
 
-            // Savings progress
             const savingsProgress = `
                 <div class="bg-gray-50 p-3 rounded-lg slide-in dark:bg-gray-700">
                     <h3 class="text-base font-semibold text-gray-800 dark:text-white">Savings Progress</h3>
@@ -652,7 +557,6 @@
                 </div>
             `;
 
-            // Alerts
             let alerts = '';
             if (totalExpenses / income > 0.9) {
                 alerts = '<p class="text-red-500 font-semibold mt-2 slide-in">Alert: Expenses exceed 90% of income!</p>';
@@ -661,10 +565,14 @@
                 alerts = '<p class="text-yellow-500 font-semibold mt-2 slide-in">Alert: Expenses over 70% of income.</p>';
             }
 
-            // AI Suggestions
-            const aiSuggestions = getAISuggestions(income, totalExpenses, savingsRate);
+            const aiSuggestions = BudgetOptimizer.analyze(income, totalExpenses, savingsRate, customCategories, currentSavings, savingsGoal, monthlySavingsHistory);
+            const aiSuggestionsHTML = aiSuggestions.length ? `
+                <div class="bg-yellow-100 p-3 rounded-lg slide-in dark:bg-yellow-900">
+                    <h3 class="text-base font-semibold text-gray-800 dark:text-white">AI Budget Insights</h3>
+                    <ul class="list-disc pl-5 text-gray-700 dark:text-white">${aiSuggestions.map(s => `<li>${s}</li>`).join('')}</ul>
+                </div>
+            ` : '';
 
-            // Generate result
             let result = `
                 <div class="bg-blue-50 p-3 rounded-lg slide-in dark:bg-blue-900">
                     <p class="text-lg font-bold text-blue-700 dark:text-blue-300">Monthly Savings: ₹${monthlySavings.toFixed(2)}</p>
@@ -672,7 +580,7 @@
                 </div>
                 ${expenseBreakdown}
                 ${savingsProgress}
-                ${aiSuggestions}
+                ${aiSuggestionsHTML}
                 ${alerts}
             `;
 
@@ -682,43 +590,158 @@
             }
 
             document.getElementById('result').innerHTML = result;
-
-            // Update charts
-            updateSavingsChart();
             updateCategoryPieChart();
-            updateGoalChart();
+            updateCategoryBarChart();
+            updateYearlyChart();
+            updateYearlyCompareChart();
         }
 
-        // Update Savings Chart
-        function updateSavingsChart() {
-            const year = document.getElementById('savings-year').value;
+        function updateCategoryPieChart() {
+            const year = document.getElementById('monthly-pie-year').value;
             const filteredData = monthlySavingsHistory.filter(entry => entry.month.split(' ')[1] === year);
-            const savingsData = filteredData.map(entry => entry.savings);
+            const latestEntry = filteredData[filteredData.length - 1] || { expenses: {} };
+            const totalExpenses = Object.values(latestEntry.expenses || {}).reduce((sum, val) => sum + val, 0);
+
+            if (categoryPieChart) categoryPieChart.destroy();
+            const categoryPieCtx = document.getElementById('categoryPieChart').getContext('2d');
+            categoryPieChart = new Chart(categoryPieCtx, {
+                type: 'pie',
+                data: {
+                    labels: customCategories.map(cat => cat.name),
+                    datasets: [{
+                        data: customCategories.map(cat => latestEntry.expenses[cat.id] || 0),
+                        backgroundColor: ['#ef4444', '#f97316', '#facc15', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6', '#f59e0b', '#8b5cf6'],
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: `Expense Distribution (${year})`, font: { size: 16, weight: 'bold' }, color: '#ffffff' },
+                        legend: { position: 'right', labels: { font: { size: 12, weight: 'bold' }, color: '#ffffff', boxWidth: 20 } },
+                        tooltip: { 
+                            backgroundColor: '#1e3a8a',
+                            callbacks: { label: context => `${context.label}: ₹${context.raw.toFixed(2)} (${totalExpenses > 0 ? ((context.raw / totalExpenses) * 100).toFixed(1) : 0}%)` } 
+                        },
+                        datalabels: {
+                            formatter: (value, context) => totalExpenses > 0 && value > 0 ? `${((value / totalExpenses) * 100).toFixed(1)}%` : '',
+                            color: '#ffffff',
+                            font: { weight: 'bold', size: 12 },
+                            textShadowColor: 'rgba(0, 0, 0, 0.5)',
+                            textShadowBlur: 3
+                        }
+                    },
+                    animation: { animateScale: true, animateRotate: true, duration: 1000, easing: 'easeOutQuart' }
+                }
+            });
+        }
+
+        function updateCategoryBarChart() {
+            const year = document.getElementById('monthly-bar-year').value;
+            const filteredData = monthlySavingsHistory.filter(entry => entry.month.split(' ')[1] === year);
+            const latestEntry = filteredData[filteredData.length - 1] || { expenses: {} };
+            const maxExpense = Math.max(...customCategories.map(cat => latestEntry.expenses[cat.id] || 0), 0);
+
+            if (categoryBarChart) categoryBarChart.destroy();
+            const categoryBarCtx = document.getElementById('categoryBarChart').getContext('2d');
+            const gradient = categoryBarCtx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(185, 28, 28, 0.8)');
+            gradient.addColorStop(1, 'rgba(248, 113, 113, 0.4)');
+
+            categoryBarChart = new Chart(categoryBarCtx, {
+                type: 'bar',
+                data: {
+                    labels: customCategories.map(cat => cat.name),
+                    datasets: [{
+                        label: 'Expenses (₹)',
+                        data: customCategories.map(cat => latestEntry.expenses[cat.id] || 0),
+                        backgroundColor: gradient,
+                        borderColor: '#ffffff',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            title: { display: true, text: 'Expenses (₹)', font: { size: 14 }, color: '#ffffff' },
+                            grid: { color: 'rgba(255, 255, 255, 0.2)' },
+                            ticks: { color: '#ffffff', font: { size: 12 } }
+                        },
+                        x: { 
+                            title: { display: true, text: 'Category', font: { size: 14 }, color: '#ffffff' },
+                            ticks: { color: '#ffffff', font: { size: 12 }, maxRotation: 45, minRotation: 45 },
+                            grid: { color: 'rgba(255, 255, 255, 0.2)' }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'top', labels: { font: { size: 12, weight: 'bold' }, color: '#ffffff' } },
+                        tooltip: { 
+                            backgroundColor: '#1e3a8a',
+                            callbacks: { label: context => `${context.label}: ₹${context.raw.toFixed(2)}` } 
+                        },
+                        datalabels: {
+                            formatter: (value) => value > 0 ? `₹${value.toFixed(0)}` : '',
+                            align: 'end',
+                            anchor: 'end',
+                            color: '#ffffff',
+                            font: { weight: 'bold', size: 12 },
+                            textShadowColor: 'rgba(0, 0, 0, 0.5)',
+                            textShadowBlur: 3
+                        },
+                        annotation: {
+                            annotations: maxExpense > 0 ? [{
+                                type: 'label',
+                                xValue: customCategories.findIndex(cat => (latestEntry.expenses[cat.id] || 0) === maxExpense),
+                                yValue: maxExpense,
+                                content: `Max: ₹${maxExpense.toFixed(0)}`,
+                                backgroundColor: '#f87171',
+                                color: '#ffffff',
+                                padding: 4,
+                                font: { size: 10 },
+                                position: 'center',
+                                yAdjust: -15
+                            }] : []
+                        }
+                    },
+                    animation: { duration: 1000, easing: 'easeOutQuart' }
+                }
+            });
+        }
+
+        function updateYearlyChart() {
+            const year = document.getElementById('yearly-year').value;
+            const filteredData = monthlySavingsHistory.filter(entry => entry.month.split(' ')[1] === year);
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const savingsData = months.map(month => {
+                const entry = filteredData.find(e => e.month.startsWith(month));
+                return entry ? entry.savings : 0;
+            });
             const maxSavings = Math.max(...savingsData, 0);
             const minSavings = Math.min(...savingsData, 0);
             const maxIndex = savingsData.indexOf(maxSavings);
             const minIndex = savingsData.indexOf(minSavings);
 
-            if (savingsChart) savingsChart.destroy();
-            const savingsCtx = document.getElementById('savingsChart').getContext('2d');
-            const gradient = savingsCtx.createLinearGradient(0, 0, 0, 300);
-            gradient.addColorStop(0, 'rgba(59, 130, 246, 0.6)');
-            gradient.addColorStop(1, 'rgba(30, 64, 175, 0.2)');
+            if (yearlyChart) yearlyChart.destroy();
+            const yearlyCtx = document.getElementById('yearlyChart').getContext('2d');
+            const gradient = yearlyCtx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(126, 34, 206, 0.8)');
+            gradient.addColorStop(1, 'rgba(192, 132, 252, 0.4)');
 
-            savingsChart = new Chart(savingsCtx, {
-                type: 'line',
+            yearlyChart = new Chart(yearlyCtx, {
+                type: 'bar',
                 data: {
-                    labels: filteredData.map(entry => entry.month.split(' ')[0]),
+                    labels: months,
                     datasets: [{
                         label: 'Savings (₹)',
                         data: savingsData,
-                        borderColor: '#ffffff',
                         backgroundColor: gradient,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#ffffff',
-                        pointBorderColor: '#3b82f6'
+                        borderColor: '#ffffff',
+                        borderWidth: 1
                     }]
                 },
                 options: {
@@ -741,21 +764,22 @@
                         legend: { position: 'top', labels: { font: { size: 12, weight: 'bold' }, color: '#ffffff' } },
                         tooltip: { 
                             backgroundColor: '#1e3a8a',
-                            bodyColor: '#ffffff',
-                            titleColor: '#ffffff',
                             callbacks: { 
                                 label: context => `Savings: ₹${context.raw.toFixed(2)}`,
                                 title: context => {
-                                    const entry = filteredData[context[0].dataIndex];
-                                    return `${entry.month}${entry.notes ? ` (${entry.notes})` : ''}`;
+                                    const entry = filteredData.find(e => e.month.startsWith(context[0].label));
+                                    return entry && entry.notes ? `${context[0].label} ${year} (${entry.notes})` : `${context[0].label} ${year}`;
                                 }
                             } 
                         },
                         datalabels: {
-                            formatter: (value, context) => context.dataIndex % 2 === 0 ? `₹${value.toFixed(0)}` : '',
-                            align: 'top',
+                            formatter: (value) => value !== 0 ? `₹${value.toFixed(0)}` : '',
+                            align: 'end',
+                            anchor: 'end',
                             color: '#ffffff',
-                            font: { weight: 'bold', size: 12 }
+                            font: { weight: 'bold', size: 12 },
+                            textShadowColor: 'rgba(0, 0, 0, 0.5)',
+                            textShadowBlur: 3
                         },
                         annotation: {
                             annotations: maxSavings > 0 ? [
@@ -764,7 +788,7 @@
                                     xValue: maxIndex,
                                     yValue: maxSavings,
                                     content: `Peak: ₹${maxSavings.toFixed(0)}`,
-                                    backgroundColor: '#3b82f6',
+                                    backgroundColor: '#c084fc',
                                     color: '#ffffff',
                                     padding: 4,
                                     font: { size: 10 },
@@ -786,100 +810,85 @@
                             ] : []
                         }
                     },
-                    animation: {
-                        duration: 1000,
-                        easing: 'easeOutQuart'
-                    }
+                    animation: { duration: 1000, easing: 'easeOutQuart' }
                 }
             });
         }
 
-        // Update Category Pie Chart
-        function updateCategoryPieChart() {
-            const year = document.getElementById('category-pie-year').value;
-            const filteredData = monthlySavingsHistory.filter(entry => entry.month.split(' ')[1] === year);
-            const latestEntry = filteredData[filteredData.length - 1] || { expenses: {} };
-            const totalExpenses = Object.values(latestEntry.expenses || {}).reduce((sum, val) => sum + val, 0);
+        function updateYearlyCompareChart() {
+            const years = [...new Set(monthlySavingsHistory.map(entry => entry.month.split(' ')[1]))].sort((a, b) => a - b);
+            const savingsData = years.map(year => {
+                const yearlyData = monthlySavingsHistory.filter(entry => entry.month.split(' ')[1] === year);
+                return yearlyData.reduce((sum, entry) => sum + entry.savings, 0);
+            });
+            const maxSavings = Math.max(...savingsData, 0);
+            const maxIndex = savingsData.indexOf(maxSavings);
 
-            if (categoryPieChart) categoryPieChart.destroy();
-            const categoryPieCtx = document.getElementById('categoryPieChart').getContext('2d');
-            categoryPieChart = new Chart(categoryPieCtx, {
-                type: 'pie',
+            if (yearlyCompareChart) yearlyCompareChart.destroy();
+            const yearlyCompareCtx = document.getElementById('yearlyCompareChart').getContext('2d');
+            const gradient = yearlyCompareCtx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(30, 58, 138, 0.8)');
+            gradient.addColorStop(1, 'rgba(96, 165, 250, 0.4)');
+
+            yearlyCompareChart = new Chart(yearlyCompareCtx, {
+                type: 'bar',
                 data: {
-                    labels: customCategories.map(cat => cat.name),
+                    labels: years,
                     datasets: [{
-                        data: customCategories.map(cat => latestEntry.expenses[cat.id] || 0),
-                        backgroundColor: ['#1e40af', '#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe']
+                        label: 'Total Savings (₹)',
+                        data: savingsData,
+                        backgroundColor: gradient,
+                        borderColor: '#ffffff',
+                        borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        title: { display: true, text: 'Current Month', font: { size: 16, weight: 'bold' }, color: '#ffffff' },
-                        legend: { position: 'right', labels: { font: { size: 12, weight: 'bold' }, color: '#ffffff' } },
-                        tooltip: { 
-                            backgroundColor: '#1e3a8a',
-                            bodyColor: '#ffffff',
-                            titleColor: '#ffffff',
-                            callbacks: { label: context => `${context.label}: ₹${context.raw.toFixed(2)} (${totalExpenses > 0 ? ((context.raw / totalExpenses) * 100).toFixed(1) : 0}%)` } 
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            title: { display: true, text: 'Savings (₹)', font: { size: 14 }, color: '#ffffff' },
+                            grid: { color: 'rgba(255, 255, 255, 0.2)' },
+                            ticks: { color: '#ffffff', font: { size: 12 } }
                         },
-                        datalabels: {
-                            formatter: (value, context) => totalExpenses > 0 && value > 0 ? `${((value / totalExpenses) * 100).toFixed(1)}%` : '',
-                            color: '#ffffff',
-                            font: { weight: 'bold', size: 12 }
+                        x: { 
+                            title: { display: true, text: 'Year', font: { size: 14 }, color: '#ffffff' },
+                            ticks: { color: '#ffffff', font: { size: 12 } },
+                            grid: { color: 'rgba(255, 255, 255, 0.2)' }
                         }
                     },
-                    animation: {
-                        animateScale: true,
-                        animateRotate: true,
-                        duration: 1000,
-                        easing: 'easeOutQuart'
-                    }
-                }
-            });
-        }
-
-        // Update Goal Chart
-        function updateGoalChart() {
-            const savingsGoal = parseFloat(document.getElementById('savingsGoal').value) || 0;
-            const currentSavings = parseFloat(document.getElementById('currentSavings').value) || 0;
-
-            if (goalChart) goalChart.destroy();
-            const goalCtx = document.getElementById('goalChart').getContext('2d');
-            goalChart = new Chart(goalCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Current Savings', 'Remaining Goal'],
-                    datasets: [{
-                        data: [currentSavings, savingsGoal - currentSavings > 0 ? savingsGoal - currentSavings : 0],
-                        backgroundColor: ['#3b82f6', '#e2e8f0'],
-                        borderColor: ['#ffffff', '#ffffff']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'bottom', labels: { font: { size: 12, weight: 'bold' }, color: '#ffffff' } },
+                        legend: { position: 'top', labels: { font: { size: 12, weight: 'bold' }, color: '#ffffff' } },
                         tooltip: { 
                             backgroundColor: '#1e3a8a',
-                            bodyColor: '#ffffff',
-                            titleColor: '#ffffff',
-                            callbacks: { label: context => `${context.label}: ₹${context.raw.toFixed(2)}` } 
+                            callbacks: { label: context => `Savings: ₹${context.raw.toFixed(2)}` } 
                         },
                         datalabels: {
-                            formatter: (value, context) => savingsGoal > 0 && value > 0 ? `${((value / savingsGoal) * 100).toFixed(1)}%` : '',
+                            formatter: (value) => value !== 0 ? `₹${value.toFixed(0)}` : '',
+                            align: 'end',
+                            anchor: 'end',
                             color: '#ffffff',
-                            font: { weight: 'bold', size: 12 }
+                            font: { weight: 'bold', size: 12 },
+                            textShadowColor: 'rgba(0, 0, 0, 0.5)',
+                            textShadowBlur: 3
+                        },
+                        annotation: {
+                            annotations: maxSavings > 0 ? [{
+                                type: 'label',
+                                xValue: maxIndex,
+                                yValue: maxSavings,
+                                content: `Peak: ₹${maxSavings.toFixed(0)}`,
+                                backgroundColor: '#60a5fa',
+                                color: '#ffffff',
+                                padding: 4,
+                                font: { size: 10 },
+                                position: 'center',
+                                yAdjust: -15
+                            }] : []
                         }
                     },
-                    animation: {
-                        animateScale: true,
-                        animateRotate: true,
-                        duration: 1000,
-                        easing: 'easeOutQuart'
-                    }
+                    animation: { duration: 1000, easing: 'easeOutQuart' }
                 }
             });
         }
@@ -890,9 +899,10 @@
             document.getElementById('result').innerHTML = '<p class="text-green-500 font-semibold slide-in">Savings history reset!</p>';
             updateHistoryAccordion();
             populateYearSelectors();
-            if (savingsChart) savingsChart.destroy();
-            if (goalChart) goalChart.destroy();
             if (categoryPieChart) categoryPieChart.destroy();
+            if (categoryBarChart) categoryBarChart.destroy();
+            if (yearlyChart) yearlyChart.destroy();
+            if (yearlyCompareChart) yearlyCompareChart.destroy();
             notifyUser('Data Reset', 'Savings history reset.');
         }
 
@@ -929,15 +939,13 @@
                     calculateBudget();
                 };
                 reader.readAsText(file);
+            } else {
+                notifyUser('Error', 'Please select a CSV file.');
             }
         }
 
         function backupData() {
-            const backupData = {
-                monthlySavingsHistory,
-                customCategories,
-                expenseNotes: document.getElementById('expenseNotes').value
-            };
+            const backupData = { monthlySavingsHistory, customCategories, expenseNotes: document.getElementById('expenseNotes').value };
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
             const link = document.createElement('a');
             link.setAttribute('href', dataStr);
@@ -966,7 +974,6 @@
             calculateBudget();
         }
 
-        // Initialize
         if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.classList.add('dark');
             document.getElementById('themeIcon').textContent = '🌙';
