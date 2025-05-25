@@ -9,13 +9,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <style>
-        .dark { background-color: #111827; color: #e5e7eb; }
-        .dark .bg-white { background-color: #1f2937; }
-        .dark .bg-gray-50 { background-color: #374151; }
-        .dark .text-gray-700 { color: #e5e7eb; }
-        .dark .border { border-color: #4b5563; }
-        .invalid { border-color: #f87171 !important; outline: none; }
-
+        :root { --text-primary: #1a202c; --text-secondary: #ffffff; --bg-primary: #f3f4f6; --bg-secondary: #ffffff; --border-color: #e2e8f0; }
+        .dark { --text-primary: #e5e7eb; --bg-primary: #111827; --bg-secondary: #1f2937; --border-color: #4b5563; }
+        body { background-color: var(--bg-primary); color: var(--text-primary); }
+        .bg-white, .bg-gray-50 { background-color: var(--bg-secondary); }
+        .border { border-color: var(--border-color); }
+        .invalid { border-color: #f87171 !important; }
+        h1 { color: var(--text-primary) !important; }
+        .section-text { color: var(--text-secondary); }
+        .input-field { background-color: #f7fafc; color: #1a202c; border-color: #e2e8f0; transition: all 0.2s; min-height: 48px; }
+        .dark .input-field { background-color: #374151; color: #e5e7eb; border-color: #4b5563; }
         .section-budget { background: linear-gradient(135deg, #0d9488, #2dd4bf); }
         .section-income { background: linear-gradient(135deg, #15803d, #22c55e); }
         .section-expenses { background: linear-gradient(135deg, #c2410c, #f97316); }
@@ -29,7 +32,7 @@
         .section-monthly-bar { background: linear-gradient(135deg, #b91c1c, #f87171); }
         .section-yearly-chart { background: linear-gradient(135deg, #7e22ce, #c084fc); }
         .section-yearly-compare { background: linear-gradient(135deg, #1e3a8a, #60a5fa); }
-
+        .section-category-trends { background: linear-gradient(135deg, #4c1d95, #7c3aed); }
         .dark .section-budget { background: linear-gradient(135deg, #0f766e, #14b8a6); }
         .dark .section-income { background: linear-gradient(135deg, #166534, #16a34a); }
         .dark .section-expenses { background: linear-gradient(135deg, #9a3412, #ea580c); }
@@ -43,222 +46,220 @@
         .dark .section-monthly-bar { background: linear-gradient(135deg, #991b1b, #dc2626); }
         .dark .section-yearly-chart { background: linear-gradient(135deg, #6d28d9, #a855f7); }
         .dark .section-yearly-compare { background: linear-gradient(135deg, #1e40af, #3b82f6); }
-
-        .section-text { color: #ffffff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5); }
-        .dark .section-text { color: #e5e7eb; }
-        .input-field { background-color: #f7fafc; color: #1a202c; border-color: #e2e8f0; transition: all 0.3s ease; min-height: 48px; }
-        .dark .input-field { background-color: #374151; color: #e5e7eb; border-color: #4b5563; }
+        .dark .section-category-trends { background: linear-gradient(135deg, #4c1d95, #7c3aed); }
         .chart-container { border-radius: 0.5rem; padding: 1rem; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); }
         .section-monthly-pie .chart-container { background: linear-gradient(135deg, #047857, #10b981); }
         .section-monthly-bar .chart-container { background: linear-gradient(135deg, #b91c1c, #f87171); }
         .section-yearly-chart .chart-container { background: linear-gradient(135deg, #7e22ce, #c084fc); }
         .section-yearly-compare .chart-container { background: linear-gradient(135deg, #1e3a8a, #60a5fa); }
+        .section-category-trends .chart-container { background: linear-gradient(135deg, #4c1d95, #7c3aed); }
         .dark .section-monthly-pie .chart-container { background: linear-gradient(135deg, #065f46, #059669); }
         .dark .section-monthly-bar .chart-container { background: linear-gradient(135deg, #991b1b, #dc2626); }
         .dark .section-yearly-chart .chart-container { background: linear-gradient(135deg, #6d28d9, #a855f7); }
         .dark .section-yearly-compare .chart-container { background: linear-gradient(135deg, #1e40af, #3b82f6); }
-        .chart-title { font-size: 1.5rem; font-weight: 700; color: #ffffff; }
+        .dark .section-category-trends .chart-container { background: linear-gradient(135deg, #4c1d95, #7c3aed); }
+        .chart-title { font-size: 1.5rem; font-weight: 700; color: var(--text-secondary); }
         .chart-desc { font-size: 0.875rem; color: #bfdbfe; }
-        .dark .chart-desc { color: #9ca3af; }
-
-        .tooltip { position: relative; }
+        .dark .chart-desc { color: #d1d5db; }
+        canvas { max-height: 300px; width: 100% !important; }
         .tooltip:hover::after, .tooltip:focus::after {
-            content: attr(data-tooltip); position: absolute; background: #1e3a8a; color: #ffffff;
-            padding: 6px 10px; border-radius: 4px; bottom: 100%; left: 50%; transform: translateX(-50%);
-            white-space: nowrap; z-index: 10; opacity: 0; animation: fadeIn 0.3s forwards;
+            content: attr(data-tooltip); position: absolute; background: #1e3a8a; color: #ffffff; padding: 6px 10px; border-radius: 4px; bottom: 100%; left: 50%; transform: translateX(-50%); white-space: nowrap; z-index: 10; opacity: 0; animation: fadeIn 0.3s forwards;
         }
-
-        .progress-bar { transition: width 1.5s ease-in-out; }
-
+        .progress-bar { transition: width 1s ease-in-out; }
         .slide-in { opacity: 0; transform: translateX(-20px); animation: slideIn 0.5s ease-out forwards; }
         @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
         @keyframes fadeIn { to { opacity: 1; } }
-
         .btn-analyze { background: linear-gradient(90deg, #1e40af, #3b82f6); }
         .btn-reset { background: linear-gradient(90deg, #b91c1c, #f87171); }
         .btn-export { background: linear-gradient(90deg, #15803d, #22c55e); }
         .btn-backup { background: linear-gradient(90deg, #4c1d95, #7c3aed); }
-        .btn-analyze:hover, .btn-reset:hover, .btn-export:hover, .btn-backup:hover {
-            filter: brightness(1.1); transform: scale(1.05); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); transition: all 0.3s ease;
-        }
-
-        .accordion-header { cursor: pointer; transition: background-color 0.3s ease; padding: 0.75rem; border-radius: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .btn-download { background: linear-gradient(90deg, #b45309, #f59e0b); }
+        .btn-analyze:hover, .btn-reset:hover, .btn-export:hover, .btn-backup:hover, .btn-download:hover { filter: brightness(1.1); transform: scale(1.05); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); transition: all 0.2s; }
+        .accordion-header { cursor: pointer; transition: background-color 0.2s; padding: 0.75rem; border-radius: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
         .section-monthly-pie .accordion-header { background: linear-gradient(135deg, #047857, #10b981, 0.75); }
         .section-monthly-bar .accordion-header { background: linear-gradient(135deg, #b91c1c, #f87171, 0.75); }
         .section-yearly-chart .accordion-header { background: linear-gradient(135deg, #7e22ce, #c084fc, 0.75); }
         .section-yearly-compare .accordion-header { background: linear-gradient(135deg, #1e3a8a, #60a5fa, 0.75); }
+        .section-category-trends .accordion-header { background: linear-gradient(135deg, #4c1d95, #7c3aed, 0.75); }
+        .section-results .accordion-header { background: linear-gradient(135deg, #0e7490, #06b6d4, 0.75); }
         .dark .section-monthly-pie .accordion-header { background: linear-gradient(135deg, #065f46, #059669, 0.70); }
         .dark .section-monthly-bar .accordion-header { background: linear-gradient(135deg, #991b1b, #dc2626, 0.70); }
         .dark .section-yearly-chart .accordion-header { background: linear-gradient(135deg, #6d28d9, #a855f7, 0.70); }
         .dark .section-yearly-compare .accordion-header { background: linear-gradient(135deg, #1e40af, #3b82f6, 0.70); }
+        .dark .section-category-trends .accordion-header { background: linear-gradient(135deg, #4c1d95, #7c3aed, 0.70); }
+        .dark .section-results .accordion-header { background: linear-gradient(135deg, #155e75, #0891b2, 0.70); }
         .accordion-header:hover { filter: brightness(1.1); }
         .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; opacity: 0; padding: 0 0.75rem; }
-        .accordion-content.open { max-height: 500px; opacity: 1; padding: 0.75rem; }
-
-        .year-selector { background: linear-gradient(90deg, #1e40af, #3b82f6); color: #ffffff; padding: 0.5rem; border-radius: 0.5rem; transition: all 0.3s ease; }
-        .dark .year-selector { background: linear-gradient(90deg, #1e3a8a, #2563eb); color: #e5e7eb; }
+        .accordion-content.open { max-height: none; opacity: 1; padding: 0.75rem; }
+        .year-selector { background: linear-gradient(90deg, #1e40af, #3b82f6); color: #ffffff; padding: 0.5rem; border-radius: 0.5rem; transition: all 0.2s; }
+        .dark .year-selector { background: linear-gradient(90deg, #1e3a8a, #2563eb); }
         .year-selector:hover { filter: brightness(1.1); }
-
         @media (max-width: 640px) {
-            body { padding: 1rem; }
+            body { padding: 0.5rem; }
             .grid-cols-2 { grid-template-columns: 1fr; }
-            .text-4xl { font-size: 1.875rem; }
-            .max-w-4xl { max-width: 100%; padding: 1.5rem; }
-            canvas { max-height: 250px; }
+            .text-4xl { font-size: 1.5rem; }
+            .max-w-4xl { max-width: 100%; padding: 1rem; }
+            canvas { max-height: 250px !important; }
             .chart-title { font-size: 1.25rem; }
             .chart-desc { font-size: 0.75rem; }
-            .input-field, .btn-analyze, .btn-reset, .btn-export, .btn-backup { font-size: 0.875rem; padding: 0.75rem; }
-            .section-budget, .section-income, .section-expenses, .section-notes, .section-savings, .section-history, .section-import, .section-actions, .section-results, .section-monthly-pie, .section-monthly-bar, .section-yearly-chart, .section-yearly-compare { padding: 1rem; }
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen transition-colors duration-300">
-    <div class="bg-white p-6 sm:p-10 rounded-xl shadow-2xl w-full max-w-4xl slide-in dark:bg-gray-800">
-        <div class="flex justify-center items-center mb-6">
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800 dark:text-white">Smart Budget Analyzer</h1>
+<body class="flex items-center justify-center min-h-screen">
+    <div class="bg-white p-4 sm:p-8 rounded-xl shadow-2xl w-full max-w-4xl slide-in dark:bg-gray-800">
+        <div class="flex justify-center mb-4">
+            <h1 class="text-2xl sm:text-3xl font-extrabold">Smart Budget Analyzer</h1>
         </div>
-
         <div class="flex justify-end mb-4">
-            <button onclick="toggleTheme()" class="text-xl tooltip p-2 rounded-full bg-gradient-to-r from-blue-600 to-blue-400 text-white hover:shadow-lg transition transform hover:scale-105" data-tooltip="Toggle Theme" aria-label="Toggle Theme">
+            <button onclick="toggleTheme()" class="text-xl p-2 rounded-full bg-gradient-to-r from-blue-600 to-blue-400 text-white hover:shadow-lg transition transform hover:scale-105" data-tooltip="Toggle Theme" aria-label="Toggle Theme">
                 <span id="themeIcon">💡</span>
             </button>
         </div>
-
-        <div class="mb-4 section-budget p-4 sm:p-6 rounded-lg slide-in">
-            <h2 class="text-lg sm:text-xl font-semibold mb-2 section-text">Budget Template</h2>
-            <select id="template" class="p-3 w-full border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition input-field hover:shadow-sm" data-tooltip="Choose a preset budget" onchange="applyTemplate()" aria-label="Budget Template">
+        <div class="mb-4 section-budget p-3 sm:p-4 rounded-lg slide-in">
+            <h2 class="text-base sm:text-lg font-semibold mb-2 section-text">Budget Template</h2>
+            <select id="template" class="p-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500 transition input-field" data-tooltip="Choose a preset budget" onchange="applyTemplate()" aria-label="Budget Template">
                 <option value="none">None</option>
                 <option value="student">Student</option>
                 <option value="family">Family</option>
                 <option value="professional">Professional</option>
             </select>
         </div>
-
-        <div class="mb-4 section-income p-4 sm:p-6 rounded-lg slide-in">
-            <h2 class="text-lg sm:text-xl font-semibold mb-2 section-text">Monthly Income</h2>
-            <input id="income" type="number" min="0" step="0.01" class="p-3 w-full border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition input-field hover:shadow-sm" data-tooltip="Enter monthly income" placeholder="Enter total income" required aria-required="true" autofocus>
+        <div class="mb-4 section-income p-3 sm:p-4 rounded-lg slide-in">
+            <h2 class="text-base sm:text-lg font-semibold mb-2 section-text">Monthly Income</h2>
+            <input id="income" type="number" min="0" step="0.01" class="p-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500 transition input-field" data-tooltip="Enter monthly income" placeholder="Enter total income" required aria-required="true" autofocus>
         </div>
-
-        <div class="mb-4 section-expenses p-4 sm:p-6 rounded-lg slide-in">
-            <h2 class="text-lg sm:text-xl font-semibold mb-2 section-text">Expenses</h2>
+        <div class="mb-4 section-expenses p-3 sm:p-4 rounded-lg slide-in">
+            <h2 class="text-base sm:text-lg font-semibold mb-2 section-text">Expenses</h2>
             <div class="flex justify-end mb-2">
-                <select id="sortCategories" class="p-2 border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition input-field hover:shadow-sm" data-tooltip="Sort categories" onchange="sortCategories()" aria-label="Sort Expenses">
+                <select id="sortCategories" class="p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition input-field" data-tooltip="Sort categories" onchange="sortCategories()" aria-label="Sort Expenses">
                     <option value="name">Sort by Name</option>
                     <option value="amount">Sort by Amount</option>
                 </select>
             </div>
-            <div id="expenseCategories" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
-            <div class="mt-3 flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0">
-                <input id="newCategoryName" type="text" class="p-3 border rounded-lg flex-1 tooltip focus:ring-2 focus:ring-blue-500 transition input-field hover:shadow-sm" data-tooltip="New category" placeholder="New category name" aria-label="New Category Name">
-                <input id="newCategoryAmount" type="number" min="0" step="0.01" class="p-3 border rounded-lg sm:w-1/3 tooltip focus:ring-2 focus:ring-blue-500 transition input-field hover:shadow-sm" data-tooltip="Amount" placeholder="Amount" aria-label="New Category Amount">
-                <button onclick="addCategory()" class="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 tooltip transition transform hover:scale-105 hover:shadow-lg" data-tooltip="Add category" aria-label="Add Category"><i class="fas fa-plus"></i></button>
+            <div id="expenseCategories" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+            <div class="mt-2 flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
+                <input id="newCategoryName" type="text" class="p-2 border rounded-lg flex-1 focus:ring-2 focus:ring-blue-500 transition input-field" data-tooltip="New category" placeholder="New category name" aria-label="New Category Name">
+                <input id="newCategoryAmount" type="number" min="0" step="0.01" class="p-2 border rounded-lg sm:w-1/3 focus:ring-2 focus:ring-blue-500 transition input-field" data-tooltip="Amount" placeholder="Amount" aria-label="New Category Amount">
+                <button onclick="addCategory()" class="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition transform hover:scale-105" data-tooltip="Add category" aria-label="Add Category"><i class="fas fa-plus"></i></button>
             </div>
         </div>
-
-        <div class="mb-4 section-notes p-4 sm:p-6 rounded-lg slide-in">
-            <h2 class="text-lg sm:text-xl font-semibold mb-2 section-text">Expense Notes</h2>
-            <textarea id="expenseNotes" class="p-3 w-full border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition input-field hover:shadow-sm" data-tooltip="Add notes" placeholder="Add notes for expenses" aria-label="Expense Notes"></textarea>
+        <div class="mb-4 section-notes p-3 sm:p-4 rounded-lg slide-in">
+            <h2 class="text-base sm:text-lg font-semibold mb-2 section-text">Expense Notes</h2>
+            <textarea id="expenseNotes" class="p-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500 transition input-field" data-tooltip="Add notes" placeholder="Add notes for expenses" aria-label="Expense Notes"></textarea>
         </div>
-
-        <div class="mb-4 section-savings p-4 sm:p-6 rounded-lg slide-in">
-            <h2 class="text-lg sm:text-xl font-semibold mb-2 section-text">Savings Goals</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="mb-4 section-savings p-3 sm:p-4 rounded-lg slide-in">
+            <h2 class="text-base sm:text-lg font-semibold mb-2 section-text">Savings Goals</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                     <label for="savingsGoal" class="block text-xs sm:text-sm font-medium section-text">Savings Goal (₹)</label>
-                    <input id="savingsGoal" type="number" min="0" step="0.01" class="mt-1 p-3 w-full border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition input-field hover:shadow-sm" data-tooltip="Set savings goal" placeholder="Enter savings goal" aria-label="Savings Goal">
+                    <input id="savingsGoal" type="number" min="0" step="0.01" class="mt-1 p-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500 transition input-field" data-tooltip="Set savings goal" placeholder="Enter savings goal" aria-label="Savings Goal">
                 </div>
                 <div>
                     <label for="currentSavings" class="block text-xs sm:text-sm font-medium section-text">Current Savings (₹)</label>
-                    <input id="currentSavings" type="number" min="0" step="0.01" class="mt-1 p-3 w-full border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition input-field hover:shadow-sm" data-tooltip="Current savings" placeholder="Enter current savings" aria-label="Current Savings">
+                    <input id="currentSavings" type="number" min="0" step="0.01" class="mt-1 p-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500 transition input-field" data-tooltip="Current savings" placeholder="Enter current savings" aria-label="Current Savings">
                 </div>
             </div>
         </div>
-
-        <div class="mb-4 section-history p-4 sm:p-6 rounded-lg slide-in">
-            <h2 class="text-lg sm:text-xl font-semibold mb-2 section-text">Historical Data</h2>
+        <div class="mb-4 section-history p-3 sm:p-4 rounded-lg slide-in">
+            <h2 class="text-base sm:text-lg font-semibold mb-2 section-text">Historical Data</h2>
             <div id="historyAccordion"></div>
-            <div class="flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0 mt-3">
-                <button onclick="editHistoricalData()" class="flex-1 bg-yellow-500 text-white p-3 rounded-lg hover:bg-yellow-600 tooltip transition transform hover:scale-105 hover:shadow-lg" data-tooltip="Edit month" aria-label="Edit Past Data">Edit</button>
-                <button onclick="saveHistoricalData()" class="flex-1 bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 tooltip transition transform hover:scale-105 hover:shadow-lg" data-tooltip="Save changes" disabled id="saveHistoryBtn" aria-label="Save Past Data">Save</button>
+            <div class="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0 mt-2">
+                <button onclick="editHistoricalData()" class="flex-1 bg-yellow-500 text-white p-2 rounded-lg hover:bg-yellow-600 transition transform hover:scale-105" data-tooltip="Edit month" aria-label="Edit Past Data">Edit</button>
+                <button onclick="saveHistoricalData()" class="flex-1 bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition transform hover:scale-105" disabled id="saveHistoryBtn" data-tooltip="Save changes" aria-label="Save Past Data">Save</button>
             </div>
         </div>
-
-        <div class="mb-4 section-import p-4 sm:p-6 rounded-lg slide-in">
-            <h2 class="text-lg sm:text-xl font-semibold mb-2 section-text">Import Data</h2>
-            <input id="importFile" type="file" accept=".csv" class="p-3 w-full border rounded-lg tooltip focus:ring-2 focus:ring-blue-500 transition input-field hover:shadow-sm" data-tooltip="Upload CSV" aria-label="Import File">
-            <button onclick="importData()" class="mt-3 bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 tooltip transition transform hover:scale-105 hover:shadow-lg" data-tooltip="Import data" aria-label="Import Data">Import</button>
+        <div class="mb-4 section-import p-3 sm:p-4 rounded-lg slide-in">
+            <h2 class="text-base sm:text-lg font-semibold mb-2 section-text">Import Data</h2>
+            <input id="importFile" type="file" accept=".csv" class="p-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500 transition input-field" data-tooltip="Upload CSV" aria-label="Import File">
+            <button onclick="importData()" class="mt-2 bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition transform hover:scale-105" data-tooltip="Import data" aria-label="Import Data">Import</button>
         </div>
-
-        <div class="mb-6 section-actions p-4 sm:p-6 rounded-lg slide-in">
-            <div class="flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0">
-                <button onclick="calculateBudget()" class="btn-analyze text-white p-3 rounded-lg text-lg font-semibold tooltip transition transform hover:shadow-lg" data-tooltip="Analyze budget" aria-label="Analyze Budget">Analyze Budget</button>
-                <button onclick="resetSavings()" class="btn-reset text-white p-3 rounded-lg tooltip transition transform hover:shadow-lg" data-tooltip="Clear data" aria-label="Reset Savings">Reset Savings</button>
-                <button onclick="exportData()" class="btn-export text-white p-3 rounded-lg tooltip transition transform hover:shadow-lg" data-tooltip="Export CSV" aria-label="Export Data">Export Data</button>
-                <button onclick="backupData()" class="btn-backup text-white p-3 rounded-lg tooltip transition transform hover:shadow-lg" data-tooltip="Backup JSON" aria-label="Backup Data">Backup Data</button>
+        <div class="mb-4 section-actions p-3 sm:p-4 rounded-lg slide-in">
+            <div class="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
+                <button onclick="calculateBudget()" class="btn-analyze text-white p-2 rounded-lg text-base font-semibold transition transform hover:shadow-lg" data-tooltip="Analyze budget" aria-label="Analyze Budget">Analyze Budget</button>
+                <button onclick="resetSavings()" class="btn-reset text-white p-2 rounded-lg transition transform hover:shadow-lg" data-tooltip="Clear data" aria-label="Reset Savings">Reset Savings</button>
+                <button onclick="exportData()" class="btn-export text-white p-2 rounded-lg transition transform hover:shadow-lg" data-tooltip="Export CSV" aria-label="Export Data">Export Data</button>
+                <button onclick="backupData()" class="btn-backup text-white p-2 rounded-lg transition transform hover:shadow-lg" data-tooltip="Backup JSON" aria-label="Backup Data">Backup Data</button>
             </div>
         </div>
-
-        <div id="result" class="mt-6 space-y-4 section-results p-4 sm:p-6 rounded-lg slide-in" role="region" aria-live="polite"></div>
-
-        <div class="mt-4 section-monthly-pie p-4 sm:p-6 rounded-lg slide-in">
-            <div class="accordion-header rounded-lg slide-in" onclick="toggleAccordion('monthly-pie')">
+        <div id="result" class="mt-4 section-results p-3 sm:p-4 rounded-lg slide-in" role="region" aria-live="polite">
+            <div class="accordion-header rounded-lg slide-in" onclick="toggleAccordion('results-content')" role="button" tabindex="0" aria-expanded="false" aria-controls="results-content">
+                <h3 class="chart-title">Budget Summary</h3>
+                <i class="fas fa-chevron-down" id="results-content-chevron"></i>
+            </div>
+            <div id="results-content" class="accordion-content"></div>
+        </div>
+        <div class="mt-4 section-monthly-pie p-3 sm:p-4 rounded-lg slide-in">
+            <div class="accordion-header rounded-lg slide-in" onclick="toggleAccordion('monthly-pie')" role="button" tabindex="0" aria-expanded="false" aria-controls="monthly-pie">
                 <h3 class="chart-title">Monthly Expense Distribution (Pie)</h3>
                 <i class="fas fa-chevron-down" id="monthly-pie-chevron"></i>
             </div>
             <div id="monthly-pie" class="accordion-content">
                 <p class="chart-desc mb-2">Percentage share of expense categories.</p>
-                <select id="monthly-pie-year" class="year-selector mb-2 w-full tooltip" data-tooltip="Filter by year" onchange="updateCategoryPieChart()" aria-label="Select Year for Monthly Pie Chart"></select>
+                <select id="monthly-pie-year" class="year-selector mb-2 w-full" data-tooltip="Filter by year" onchange="updateCategoryPieChart()" aria-label="Select Year for Monthly Pie Chart"></select>
                 <div class="chart-container">
-                    <canvas id="categoryPieChart" class="max-w-full"></canvas>
+                    <canvas id="categoryPieChart"></canvas>
+                    <button onclick="downloadChart('categoryPieChart', 'expense_distribution.png')" class="btn-download text-white p-2 mt-2 rounded-lg transition transform hover:shadow-lg" data-tooltip="Download chart" aria-label="Download Pie Chart">Download</button>
                 </div>
             </div>
         </div>
-
-        <div class="mt-4 section-monthly-bar p-4 sm:p-6 rounded-lg slide-in">
-            <div class="accordion-header rounded-lg slide-in" onclick="toggleAccordion('monthly-bar')">
+        <div class="mt-4 section-monthly-bar p-3 sm:p-4 rounded-lg slide-in">
+            <div class="accordion-header rounded-lg slide-in" onclick="toggleAccordion('monthly-bar')" role="button" tabindex="0" aria-expanded="false" aria-controls="monthly-bar">
                 <h3 class="chart-title">Monthly Expense Breakdown (Bar)</h3>
                 <i class="fas fa-chevron-down" id="monthly-bar-chevron"></i>
             </div>
             <div id="monthly-bar" class="accordion-content">
                 <p class="chart-desc mb-2">Expense amounts by category.</p>
-                <select id="monthly-bar-year" class="year-selector mb-2 w-full tooltip" data-tooltip="Filter by year" onchange="updateCategoryBarChart()" aria-label="Select Year for Monthly Bar Chart"></select>
+                <select id="monthly-bar-year" class="year-selector mb-2 w-full" data-tooltip="Filter by year" onchange="updateCategoryBarChart()" aria-label="Select Year for Monthly Bar Chart"></select>
                 <div class="chart-container">
-                    <canvas id="categoryBarChart" class="max-w-full"></canvas>
+                    <canvas id="categoryBarChart"></canvas>
+                    <button onclick="downloadChart('categoryBarChart', 'expense_breakdown.png')" class="btn-download text-white p-2 mt-2 rounded-lg transition transform hover:shadow-lg" data-tooltip="Download chart" aria-label="Download Bar Chart">Download</button>
                 </div>
             </div>
         </div>
-
-        <div class="mt-4 section-yearly-chart p-4 sm:p-6 rounded-lg slide-in">
-            <div class="accordion-header rounded-lg slide-in" onclick="toggleAccordion('yearly-chart')">
+        <div class="mt-4 section-yearly-chart p-3 sm:p-4 rounded-lg slide-in">
+            <div class="accordion-header rounded-lg slide-in" onclick="toggleAccordion('yearly-chart')" role="button" tabindex="0" aria-expanded="false" aria-controls="yearly-chart">
                 <h3 class="chart-title">Yearly Savings Trend</h3>
                 <i class="fas fa-chevron-down" id="yearly-chart-chevron"></i>
             </div>
             <div id="yearly-chart" class="accordion-content">
                 <p class="chart-desc mb-2">Savings across 12 months.</p>
-                <select id="yearly-year" class="year-selector mb-2 w-full tooltip" data-tooltip="Filter by year" onchange="updateYearlyChart()" aria-label="Select Year for Yearly Chart"></select>
+                <select id="yearly-year" class="year-selector mb-2 w-full" data-tooltip="Filter by year" onchange="updateYearlyChart()" aria-label="Select Year for Yearly Chart"></select>
                 <div class="chart-container">
-                    <canvas id="yearlyChart" class="max-w-full"></canvas>
+                    <canvas id="yearlyChart"></canvas>
+                    <button onclick="downloadChart('yearlyChart', 'yearly_savings.png')" class="btn-download text-white p-2 mt-2 rounded-lg transition transform hover:shadow-lg" data-tooltip="Download chart" aria-label="Download Yearly Chart">Download</button>
                 </div>
             </div>
         </div>
-
-        <div class="mt-4 section-yearly-compare p-4 sm:p-6 rounded-lg slide-in">
-            <div class="accordion-header rounded-lg slide-in" onclick="toggleAccordion('yearly-compare')">
+        <div class="mt-4 section-yearly-compare p-3 sm:p-4 rounded-lg slide-in">
+            <div class="accordion-header rounded-lg slide-in" onclick="toggleAccordion('yearly-compare')" role="button" tabindex="0" aria-expanded="false" aria-controls="yearly-compare">
                 <h3 class="chart-title">Savings Across Years</h3>
                 <i class="fas fa-chevron-down" id="yearly-compare-chevron"></i>
             </div>
             <div id="yearly-compare" class="accordion-content">
                 <p class="chart-desc mb-2">Total savings by year.</p>
                 <div class="chart-container">
-                    <canvas id="yearlyCompareChart" class="max-w-full"></canvas>
+                    <canvas id="yearlyCompareChart"></canvas>
+                    <button onclick="downloadChart('yearlyCompareChart', 'savings_across_years.png')" class="btn-download text-white p-2 mt-2 rounded-lg transition transform hover:shadow-lg" data-tooltip="Download chart" aria-label="Download Yearly Comparison Chart">Download</button>
+                </div>
+            </div>
+        </div>
+        <div class="mt-4 section-category-trends p-3 sm:p-4 rounded-lg slide-in">
+            <div class="accordion-header rounded-lg slide-in" onclick="toggleAccordion('category-trends')" role="button" tabindex="0" aria-expanded="false" aria-controls="category-trends">
+                <h3 class="chart-title">Category Spending Trends</h3>
+                <i class="fas fa-chevron-down" id="category-trends-chevron"></i>
+            </div>
+            <div id="category-trends" class="accordion-content">
+                <p class="chart-desc mb-2">Spending trends by category over months.</p>
+                <select id="trends-year" class="year-selector mb-2 w-full" data-tooltip="Filter by year" onchange="updateCategoryTrendsChart()" aria-label="Select Year for Category Trends"></select>
+                <div class="chart-container">
+                    <canvas id="categoryTrendsChart"></canvas>
+                    <button onclick="downloadChart('categoryTrendsChart', 'category_trends.png')" class="btn-download text-white p-2 mt-2 rounded-lg transition transform hover:shadow-lg" data-tooltip="Download chart" aria-label="Download Trends Chart">Download</button>
                 </div>
             </div>
         </div>
     </div>
-
     <script>
         Chart.register(ChartDataLabels);
-
         let monthlySavingsHistory = JSON.parse(localStorage.getItem('monthlySavingsHistory')) || [];
         let customCategories = JSON.parse(localStorage.getItem('customCategories')) || [
             { id: 'housing', name: 'Housing', amount: 0 },
@@ -268,67 +269,34 @@
             { id: 'entertainment', name: 'Entertainment', amount: 0 },
             { id: 'other', name: 'Other', amount: 0 }
         ];
-        let categoryPieChart = null;
-        let categoryBarChart = null;
-        let yearlyChart = null;
-        let yearlyCompareChart = null;
+        let charts = { categoryPieChart: null, categoryBarChart: null, yearlyChart: null, yearlyCompareChart: null, categoryTrendsChart: null };
         let editingMonth = null;
         let debounceTimeout = null;
-
+        const chartCache = new Map();
         const BudgetOptimizer = {
             analyze: (income, totalExpenses, savingsRate, categories, currentSavings, savingsGoal, history) => {
                 const suggestions = [];
-                const scores = [];
-
                 const highExpenseCategory = categories.reduce((max, cat) => cat.amount > max.amount ? cat : max, { amount: 0 });
                 const expenseRatio = income > 0 ? totalExpenses / income : 0;
                 const goalProgress = savingsGoal > 0 ? currentSavings / savingsGoal : 0;
                 const avgSavings = history.length > 0 ? history.reduce((sum, entry) => sum + entry.savings, 0) / history.length : 0;
-                const savingsTrend = history.length > 1 ? (history[history.length - 1].savings - history[history.length - 2].savings) / history[history.length - 2].savings : 0;
-
-                if (savingsRate < 10) {
-                    suggestions.push(`Savings rate (${savingsRate}%) is low. Reduce ${highExpenseCategory.name} by ₹${(highExpenseCategory.amount * 0.15).toFixed(2)} (15%).`);
-                    scores.push(0.9);
-                }
-                if (expenseRatio > 0.8) {
-                    suggestions.push(`Expenses (${(expenseRatio * 100).toFixed(1)}% of income) are high. Cut non-essential spending like ${highExpenseCategory.name}.`);
-                    scores.push(0.8);
-                }
-                if (savingsRate > 20 && income > 0) {
-                    suggestions.push("Strong savings rate. Consider investing ₹${(monthlySavings * 0.5).toFixed(2)} in low-risk funds.");
-                    scores.push(0.6);
-                }
-                if (goalProgress < 0.5 && savingsGoal > 0) {
-                    suggestions.push(`Only ${(goalProgress * 100).toFixed(1)}% of savings goal achieved. Save ₹${((savingsGoal - currentSavings) / 12).toFixed(2)} monthly to meet goal in a year.`);
-                    scores.push(0.7);
-                }
-                if (savingsTrend < -0.1 && history.length > 1) {
-                    suggestions.push(`Savings dropped by ${Math.abs(savingsTrend * 100).toFixed(1)}% from last month. Review recent spending patterns.`);
-                    scores.push(0.85);
-                }
-                if (totalExpenses > avgSavings * 2 && avgSavings > 0) {
-                    suggestions.push(`Expenses are ${((totalExpenses / avgSavings).toFixed(1))}x higher than average savings. Prioritize essential categories.`);
-                    scores.push(0.75);
-                }
-
-                return suggestions
-                    .map((s, i) => ({ text: s, score: scores[i] }))
-                    .sort((a, b) => b.score - a.score)
-                    .slice(0, 3)
-                    .map(s => s.text);
+                if (savingsRate < 10) suggestions.push(`Savings rate (${savingsRate}%) is low. Reduce ${highExpenseCategory.name} by ₹${(highExpenseCategory.amount * 0.15).toFixed(2)} (15%).`);
+                if (expenseRatio > 0.8) suggestions.push(`Expenses (${(expenseRatio * 100).toFixed(1)}% of income) are high. Cut non-essential spending like ${highExpenseCategory.name}.`);
+                if (savingsRate > 20 && income > 0) suggestions.push(`Strong savings rate. Consider investing ₹${((income - totalExpenses) * 0.5).toFixed(2)} in low-risk funds.`);
+                if (goalProgress < 0.5 && savingsGoal > 0) suggestions.push(`Only ${(goalProgress * 100).toFixed(1)}% of savings goal achieved. Save ₹${((savingsGoal - currentSavings) / 12).toFixed(2)} monthly to meet goal in a year.`);
+                return suggestions.slice(0, 3);
             }
         };
-
         function renderCategories() {
             document.getElementById('expenseCategories').innerHTML = customCategories.map(cat => `
                 <div class="slide-in">
                     <label for="${cat.id}" class="block text-xs section-text">${cat.name}</label>
-                    <input id="${cat.id}" type="number" min="0" step="0.01" class="mt-1 p-3 w-full border rounded-lg expense-input tooltip focus:ring-2 focus:ring-blue-500 transition input-field hover:shadow-sm" data-tooltip="Enter ${cat.name} expenses" placeholder="${cat.name}" value="${cat.amount}" aria-label="${cat.name} Expenses">
-                    <button onclick="removeCategory('${cat.id}')" class="text-red-500 text-xs mt-1 tooltip transition hover:text-red-600" data-tooltip="Remove category" aria-label="Remove ${cat.name} Category">Remove</button>
+                    <input id="${cat.id}" type="number" min="0" step="0.01" class="mt-1 p-2 w-full border rounded-lg expense-input focus:ring-2 focus:ring-blue-500 transition input-field" data-tooltip="Enter ${cat.name} expenses" placeholder="${cat.name}" value="${cat.amount}" aria-label="${cat.name} Expenses">
+                    <button onclick="removeCategory('${cat.id}')" class="text-red-500 text-xs mt-1 transition hover:text-red-600" data-tooltip="Remove category" aria-label="Remove ${cat.name} Category">Remove</button>
                 </div>
             `).join('');
+            localStorage.setItem('customCategories', JSON.stringify(customCategories));
         }
-
         function addCategory() {
             const name = document.getElementById('newCategoryName').value.trim();
             const amount = parseFloat(document.getElementById('newCategoryAmount').value) || 0;
@@ -339,19 +307,19 @@
                 document.getElementById('newCategoryName').value = '';
                 document.getElementById('newCategoryAmount').value = '';
                 renderCategories();
+                updateHistoryAccordion();
                 calculateBudget();
             } else {
                 notifyUser('Error', 'Enter a valid category name and non-negative amount.');
             }
         }
-
         function removeCategory(id) {
             customCategories = customCategories.filter(cat => cat.id !== id);
             localStorage.setItem('customCategories', JSON.stringify(customCategories));
             renderCategories();
+            updateHistoryAccordion();
             calculateBudget();
         }
-
         function sortCategories() {
             const sortBy = document.getElementById('sortCategories').value;
             customCategories.sort((a, b) => sortBy === 'name' ? a.name.localeCompare(b.name) : b.amount - a.amount);
@@ -359,76 +327,70 @@
             renderCategories();
             calculateBudget();
         }
-
         const templates = {
             student: { income: 10000, housing: 3000, groceries: 2000, transport: 1000, utilities: 500, entertainment: 1000, other: 500 },
             family: { income: 50000, housing: 15000, groceries: 8000, transport: 5000, utilities: 3000, entertainment: 2000, other: 3000 },
             professional: { income: 80000, housing: 20000, groceries: 5000, transport: 4000, utilities: 2000, entertainment: 3000, other: 4000 }
         };
-
         function applyTemplate() {
             const template = document.getElementById('template').value;
             if (template !== 'none') {
                 const data = templates[template];
                 document.getElementById('income').value = data.income;
                 customCategories.forEach(cat => {
-                    document.getElementById(cat.id).value = data[cat.id] || 0;
-                    cat.amount = data[cat.id] || 0;
+                    const amount = data[cat.id] || 0;
+                    document.getElementById(cat.id).value = amount;
+                    cat.amount = amount;
                 });
                 localStorage.setItem('customCategories', JSON.stringify(customCategories));
                 calculateBudget();
             }
         }
-
         function updateHistoryAccordion() {
-            const accordion = document.getElementById('historyAccordion');
             const years = [...new Set(monthlySavingsHistory.map(entry => entry.month.split(' ')[1]))].sort((a, b) => b - a);
-            accordion.innerHTML = years.map(year => {
-                const months = monthlySavingsHistory
-                    .filter(entry => entry.month.split(' ')[1] === year)
-                    .map((entry, index) => ({ ...entry, originalIndex: monthlySavingsHistory.indexOf(entry) }));
-                return `
-                    <div class="accordion-header bg-gray-50 dark:bg-gray-700 p-2 rounded-lg mb-2 slide-in" onclick="toggleAccordion('year-${year}')">
-                        <div class="flex justify-between items-center">
-                            <span class="font-semibold">${year}</span>
-                            <i class="fas fa-chevron-down" id="year-${year}-chevron"></i>
+            document.getElementById('historyAccordion').innerHTML = years.map(year => `
+                <div class="accordion-header bg-gray-50 dark:bg-gray-700 p-2 rounded-lg mb-2 slide-in" onclick="toggleAccordion('year-${year}')" role="button" tabindex="0" aria-expanded="false" aria-controls="year-${year}">
+                    <div class="flex justify-between items-center">
+                        <span class="font-semibold">${year}</span>
+                        <i class="fas fa-chevron-down" id="year-${year}-chevron"></i>
+                    </div>
+                </div>
+                <div id="year-${year}" class="accordion-content">
+                    ${monthlySavingsHistory.filter(entry => entry.month.split(' ')[1] === year).map((entry, index) => `
+                        <div class="p-2 pl-4 hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer slide-in" onclick="loadHistoricalData(${monthlySavingsHistory.indexOf(entry)})" role="button" tabindex="0" aria-label="View ${entry.month} data">
+                            ${entry.month.split(' ')[0]}: ₹${entry.savings.toFixed(2)}
                         </div>
-                    </div>
-                    <div id="year-${year}" class="accordion-content">
-                        ${months.map(entry => `
-                            <div class="p-2 pl-4 hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer slide-in" onclick="loadHistoricalData(${entry.originalIndex})">
-                                ${entry.month.split(' ')[0]}: ₹${entry.savings.toFixed(2)}
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }).join('');
+                    `).join('')}
+                </div>
+            `).join('');
         }
-
         function toggleAccordion(id) {
             const content = document.getElementById(id);
             const chevron = document.getElementById(`${id}-chevron`);
-            content.classList.toggle('open');
-            chevron.classList.toggle('fa-chevron-down');
-            chevron.classList.toggle('fa-chevron-up');
-            if (content.classList.contains('open')) {
+            const header = content.previousElementSibling;
+            const isOpen = content.classList.toggle('open');
+            chevron.classList.toggle('fa-chevron-down', !isOpen);
+            chevron.classList.toggle('fa-chevron-up', isOpen);
+            header.setAttribute('aria-expanded', isOpen);
+            if (isOpen) {
                 if (id === 'monthly-pie') updateCategoryPieChart();
                 if (id === 'monthly-bar') updateCategoryBarChart();
                 if (id === 'yearly-chart') updateYearlyChart();
                 if (id === 'yearly-compare') updateYearlyCompareChart();
+                if (id === 'category-trends') updateCategoryTrendsChart();
             }
         }
-
         function loadHistoricalData(index) {
             editingMonth = index;
             const entry = monthlySavingsHistory[index];
             document.getElementById('income').value = entry.income || '';
             customCategories.forEach(cat => {
-                document.getElementById(cat.id).value = entry.expenses?.[cat.id] || 0;
-                cat.amount = entry.expenses?.[cat.id] || 0;
+                const amount = entry.expenses?.[cat.id] || 0;
+                document.getElementById(cat.id).value = amount;
+                cat.amount = amount;
             });
             document.getElementById('expenseNotes').value = entry.notes || '';
-            document.getElementById('result').innerHTML = `
+            document.getElementById('results-content').innerHTML = `
                 <div class="bg-gray-50 p-3 rounded-lg slide-in dark:bg-gray-700">
                     <h3 class="text-base font-semibold text-gray-800 dark:text-white">Budget for ${entry.month}</h3>
                     <p><strong>Income:</strong> ₹${entry.income.toFixed(2)}</p>
@@ -442,9 +404,9 @@
                 </div>
             `;
             document.getElementById('saveHistoryBtn').disabled = false;
+            toggleAccordion('results-content');
             calculateBudget();
         }
-
         function editHistoricalData() {
             if (editingMonth === null) {
                 notifyUser('Error', 'Select a month to edit.');
@@ -452,7 +414,6 @@
             }
             document.getElementById('saveHistoryBtn').disabled = false;
         }
-
         function saveHistoricalData() {
             if (editingMonth === null) return;
             const income = parseFloat(document.getElementById('income').value) || 0;
@@ -476,56 +437,44 @@
             updateHistoryAccordion();
             calculateBudget();
         }
-
         function populateYearSelectors() {
             const years = [...new Set(monthlySavingsHistory.map(entry => entry.month.split(' ')[1]))].sort((a, b) => b - a);
             const currentYear = new Date().getFullYear().toString();
             if (!years.includes(currentYear)) years.unshift(currentYear);
-            const selectors = ['monthly-pie-year', 'monthly-bar-year', 'yearly-year'];
-            selectors.forEach(id => {
-                document.getElementById(id).innerHTML = years.map(year => `<option value="${year}" ${year === currentYear ? 'selected' : ''}>${year}</option>`).join('');
+            ['monthly-pie-year', 'monthly-bar-year', 'yearly-year', 'trends-year'].forEach(id => {
+                const select = document.getElementById(id);
+                select.innerHTML = years.map(year => `<option value="${year}" ${year === currentYear ? 'selected' : ''}>${year}</option>`).join('');
             });
         }
-
-        function debounce(func, wait) {
-            return function(...args) {
-                clearTimeout(debounceTimeout);
-                debounceTimeout = setTimeout(() => func.apply(this, args), wait);
-            };
-        }
-
         function calculateBudget() {
             const incomeInput = document.getElementById('income');
             const income = parseFloat(incomeInput.value) || 0;
             const savingsGoal = parseFloat(document.getElementById('savingsGoal').value) || 0;
             const currentSavings = parseFloat(document.getElementById('currentSavings').value) || 0;
             const expenseNotes = document.getElementById('expenseNotes').value;
-
             customCategories.forEach(cat => {
                 const input = document.getElementById(cat.id);
-                cat.amount = parseFloat(input.value) || 0;
-                input.classList.toggle('invalid', cat.amount < 0);
+                if (input) {
+                    cat.amount = parseFloat(input.value) || 0;
+                    input.classList.toggle('invalid', cat.amount < 0);
+                }
             });
-
-            const inputs = [incomeInput, document.getElementById('savingsGoal'), document.getElementById('currentSavings')];
-            inputs.forEach(input => input.classList.toggle('invalid', parseFloat(input.value) < 0 || (input.required && !input.value)));
+            [incomeInput, document.getElementById('savingsGoal'), document.getElementById('currentSavings')].forEach(input => input.classList.toggle('invalid', parseFloat(input.value) < 0 || (input.required && !input.value)));
             if (income < 0 || customCategories.some(cat => cat.amount < 0) || savingsGoal < 0 || currentSavings < 0) {
-                document.getElementById('result').innerHTML = '<p class="text-red-500 font-semibold slide-in">Enter non-negative values.</p>';
+                document.getElementById('results-content').innerHTML = '<p class="text-red-500 font-semibold slide-in">Enter non-negative values.</p>';
+                toggleAccordion('results-content');
+                notifyUser('Error', 'All values must be non-negative.');
                 return;
             }
-
             const totalExpenses = customCategories.reduce((sum, cat) => sum + cat.amount, 0);
             const monthlySavings = income - totalExpenses;
             const savingsRate = income > 0 ? (monthlySavings / income * 100).toFixed(2) : 0;
-            const progressPercentage = savingsGoal > 0 ? (currentSavings / savingsGoal * 100).toFixed(1) : 0;
-
+            const progressPercentage = savingsGoal > 0 ? Math.min((currentSavings / savingsGoal * 100).toFixed(1), 100) : 0;
             if (editingMonth === null) {
                 const currentMonth = new Date().toLocaleString('default', { month: 'short', year: 'numeric' });
                 const existingEntry = monthlySavingsHistory.find(entry => entry.month === currentMonth);
                 const expenses = {};
-                customCategories.forEach(cat => {
-                    expenses[cat.id] = cat.amount;
-                });
+                customCategories.forEach(cat => expenses[cat.id] = cat.amount);
                 if (existingEntry) {
                     existingEntry.savings = monthlySavings;
                     existingEntry.income = income;
@@ -538,73 +487,81 @@
             }
             updateHistoryAccordion();
             populateYearSelectors();
-
+            chartCache.clear();
             const expenseBreakdown = `
-                <div class="bg-gray-50 p-3 rounded-lg slide-in dark:bg-gray-700">
-                    <h3 class="text-base font-semibold text-gray-800 dark:text-white">Expense Breakdown</h3>
+                <div class="bg-gray-50 p-2 rounded-lg slide-in dark:bg-gray-700">
+                    <h3 class="text-sm font-semibold text-gray-800 dark:text-white">Expense Breakdown</h3>
                     ${customCategories.map(cat => `<p>${cat.name}: ₹${cat.amount.toFixed(2)} (${totalExpenses > 0 ? ((cat.amount / totalExpenses) * 100).toFixed(1) : 0}%)</p>`).join('')}
                 </div>
             `;
-
             const savingsProgress = `
-                <div class="bg-gray-50 p-3 rounded-lg slide-in dark:bg-gray-700">
-                    <h3 class="text-base font-semibold text-gray-800 dark:text-white">Savings Progress</h3>
+                <div class="bg-gray-50 p-2 rounded-lg slide-in dark:bg-gray-700">
+                    <h3 class="text-sm font-semibold text-gray-800 dark:text-white">Savings Progress</h3>
                     <p>Current: ₹${currentSavings.toFixed(2)} / Goal: ₹${savingsGoal.toFixed(2)}</p>
-                    <div class="w-full bg-gray-200 rounded-full h-3 mt-2 dark:bg-gray-600">
-                        <div class="bg-blue-500 h-3 rounded-full progress-bar" style="width: ${progressPercentage}%"></div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-2 dark:bg-gray-600">
+                        <div class="bg-blue-500 h-2 rounded-full progress-bar" style="width: ${progressPercentage}%"></div>
                     </div>
                     <p>${progressPercentage}% achieved</p>
                 </div>
             `;
-
             let alerts = '';
-            if (totalExpenses / income > 0.9) {
+            if (totalExpenses / income > 0.9 && income > 0) {
                 alerts = '<p class="text-red-500 font-semibold mt-2 slide-in">Alert: Expenses exceed 90% of income!</p>';
                 notifyUser('High Spending', 'Expenses exceed 90% of income.');
-            } else if (totalExpenses / income > 0.7) {
+            } else if (totalExpenses / income > 0.7 && income > 0) {
                 alerts = '<p class="text-yellow-500 font-semibold mt-2 slide-in">Alert: Expenses over 70% of income.</p>';
             }
-
             const aiSuggestions = BudgetOptimizer.analyze(income, totalExpenses, savingsRate, customCategories, currentSavings, savingsGoal, monthlySavingsHistory);
             const aiSuggestionsHTML = aiSuggestions.length ? `
-                <div class="bg-yellow-100 p-3 rounded-lg slide-in dark:bg-yellow-900">
-                    <h3 class="text-base font-semibold text-gray-800 dark:text-white">AI Budget Insights</h3>
+                <div class="bg-yellow-100 p-2 rounded-lg slide-in dark:bg-yellow-900">
+                    <h3 class="text-sm font-semibold text-gray-800 dark:text-white">AI Budget Insights</h3>
                     <ul class="list-disc pl-5 text-gray-700 dark:text-white">${aiSuggestions.map(s => `<li>${s}</li>`).join('')}</ul>
                 </div>
             ` : '';
-
             let result = `
-                <div class="bg-blue-50 p-3 rounded-lg slide-in dark:bg-blue-900">
-                    <p class="text-lg font-bold text-blue-700 dark:text-blue-300">Monthly Savings: ₹${monthlySavings.toFixed(2)}</p>
-                    <p class="text-lg font-bold text-blue-700 dark:text-blue-300">Savings Rate: ${savingsRate}%</p>
+                <div class="bg-blue-50 p-2 rounded-lg slide-in dark:bg-blue-900">
+                    <p class="text-base font-bold text-blue-700 dark:text-blue-300">Monthly Savings: ₹${monthlySavings.toFixed(2)}</p>
+                    <p class="text-base font-bold text-blue-700 dark:text-blue-300">Savings Rate: ${savingsRate}%</p>
                 </div>
                 ${expenseBreakdown}
                 ${savingsProgress}
                 ${aiSuggestionsHTML}
                 ${alerts}
             `;
-
             if (monthlySavings < 0) {
                 result += '<p class="text-red-500 font-semibold mt-2 slide-in">Warning: Expenses exceed income!</p>';
                 notifyUser('Negative Savings', 'Expenses exceed income.');
             }
-
-            document.getElementById('result').innerHTML = result;
-            updateCategoryPieChart();
-            updateCategoryBarChart();
-            updateYearlyChart();
-            updateYearlyCompareChart();
+            document.getElementById('results-content').innerHTML = result;
+            toggleAccordion('results-content');
+            if (document.getElementById('monthly-pie').classList.contains('open')) updateCategoryPieChart();
+            if (document.getElementById('monthly-bar').classList.contains('open')) updateCategoryBarChart();
+            if (document.getElementById('yearly-chart').classList.contains('open')) updateYearlyChart();
+            if (document.getElementById('yearly-compare').classList.contains('open')) updateYearlyCompareChart();
+            if (document.getElementById('category-trends').classList.contains('open')) updateCategoryTrendsChart();
         }
-
         function updateCategoryPieChart() {
             const year = document.getElementById('monthly-pie-year').value;
+            const cacheKey = `pie-${year}`;
+            if (chartCache.has(cacheKey)) return;
             const filteredData = monthlySavingsHistory.filter(entry => entry.month.split(' ')[1] === year);
-            const latestEntry = filteredData[filteredData.length - 1] || { expenses: {} };
+            const latestEntry = filteredData[filteredData.length - 1] || { expenses: customCategories.reduce((acc, cat) => ({ ...acc, [cat.id]: 0 }), {}) };
             const totalExpenses = Object.values(latestEntry.expenses || {}).reduce((sum, val) => sum + val, 0);
-
-            if (categoryPieChart) categoryPieChart.destroy();
+            if (totalExpenses === 0) {
+                const canvas = document.getElementById('categoryPieChart');
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.font = '14px Arial';
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'center';
+                ctx.fillText('No expense data available', canvas.width / 2, canvas.height / 2);
+                if (charts.categoryPieChart) charts.categoryPieChart.destroy();
+                charts.categoryPieChart = null;
+                return;
+            }
+            if (charts.categoryPieChart) charts.categoryPieChart.destroy();
             const categoryPieCtx = document.getElementById('categoryPieChart').getContext('2d');
-            categoryPieChart = new Chart(categoryPieCtx, {
+            charts.categoryPieChart = new Chart(categoryPieCtx, {
                 type: 'pie',
                 data: {
                     labels: customCategories.map(cat => cat.name),
@@ -612,45 +569,48 @@
                         data: customCategories.map(cat => latestEntry.expenses[cat.id] || 0),
                         backgroundColor: ['#ef4444', '#f97316', '#facc15', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6', '#f59e0b', '#8b5cf6'],
                         borderColor: '#ffffff',
-                        borderWidth: 2
+                        borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        title: { display: true, text: `Expense Distribution (${year})`, font: { size: 16, weight: 'bold' }, color: '#ffffff' },
-                        legend: { position: 'right', labels: { font: { size: 12, weight: 'bold' }, color: '#ffffff', boxWidth: 20 } },
-                        tooltip: { 
-                            backgroundColor: '#1e3a8a',
-                            callbacks: { label: context => `${context.label}: ₹${context.raw.toFixed(2)} (${totalExpenses > 0 ? ((context.raw / totalExpenses) * 100).toFixed(1) : 0}%)` } 
-                        },
-                        datalabels: {
-                            formatter: (value, context) => totalExpenses > 0 && value > 0 ? `${((value / totalExpenses) * 100).toFixed(1)}%` : '',
-                            color: '#ffffff',
-                            font: { weight: 'bold', size: 12 },
-                            textShadowColor: 'rgba(0, 0, 0, 0.5)',
-                            textShadowBlur: 3
-                        }
-                    },
-                    animation: { animateScale: true, animateRotate: true, duration: 1000, easing: 'easeOutQuart' }
+                        title: { display: true, text: `Expense Distribution (${year})`, font: { size: 14 }, color: '#ffffff' },
+                        legend: { position: 'right', labels: { font: { size: 10 }, color: '#ffffff', boxWidth: 15 } },
+                        tooltip: { backgroundColor: '#1e3a8a', callbacks: { label: context => `${context.label}: ₹${context.raw.toFixed(2)} (${totalExpenses > 0 ? ((context.raw / totalExpenses) * 100).toFixed(1) : 0}%)` } },
+                        datalabels: { formatter: (value, context) => totalExpenses > 0 && value > 0 ? `${((value / totalExpenses) * 100).toFixed(1)}%` : '', color: '#ffffff', font: { weight: 'bold', size: 10 } }
+                    }
                 }
             });
+            chartCache.set(cacheKey, true);
         }
-
         function updateCategoryBarChart() {
             const year = document.getElementById('monthly-bar-year').value;
+            const cacheKey = `bar-${year}`;
+            if (chartCache.has(cacheKey)) return;
             const filteredData = monthlySavingsHistory.filter(entry => entry.month.split(' ')[1] === year);
-            const latestEntry = filteredData[filteredData.length - 1] || { expenses: {} };
+            const latestEntry = filteredData[filteredData.length - 1] || { expenses: customCategories.reduce((acc, cat) => ({ ...acc, [cat.id]: 0 }), {}) };
+            const totalExpenses = Object.values(latestEntry.expenses || {}).reduce((sum, val) => sum + val, 0);
+            if (totalExpenses === 0) {
+                const canvas = document.getElementById('categoryBarChart');
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.font = '14px Arial';
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'center';
+                ctx.fillText('No expense data available', canvas.width / 2, canvas.height / 2);
+                if (charts.categoryBarChart) charts.categoryBarChart.destroy();
+                charts.categoryBarChart = null;
+                return;
+            }
             const maxExpense = Math.max(...customCategories.map(cat => latestEntry.expenses[cat.id] || 0), 0);
-
-            if (categoryBarChart) categoryBarChart.destroy();
+            if (charts.categoryBarChart) charts.categoryBarChart.destroy();
             const categoryBarCtx = document.getElementById('categoryBarChart').getContext('2d');
             const gradient = categoryBarCtx.createLinearGradient(0, 0, 0, 300);
             gradient.addColorStop(0, 'rgba(185, 28, 28, 0.8)');
             gradient.addColorStop(1, 'rgba(248, 113, 113, 0.4)');
-
-            categoryBarChart = new Chart(categoryBarCtx, {
+            charts.categoryBarChart = new Chart(categoryBarCtx, {
                 type: 'bar',
                 data: {
                     labels: customCategories.map(cat => cat.name),
@@ -666,73 +626,49 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: { 
-                            beginAtZero: true, 
-                            title: { display: true, text: 'Expenses (₹)', font: { size: 14 }, color: '#ffffff' },
-                            grid: { color: 'rgba(255, 255, 255, 0.2)' },
-                            ticks: { color: '#ffffff', font: { size: 12 } }
-                        },
-                        x: { 
-                            title: { display: true, text: 'Category', font: { size: 14 }, color: '#ffffff' },
-                            ticks: { color: '#ffffff', font: { size: 12 }, maxRotation: 45, minRotation: 45 },
-                            grid: { color: 'rgba(255, 255, 255, 0.2)' }
-                        }
+                        y: { beginAtZero: true, title: { display: true, text: 'Expenses (₹)', font: { size: 12 }, color: '#ffffff' }, grid: { color: 'rgba(255, 255, 255, 0.2)' }, ticks: { color: '#ffffff', font: { size: 10 } } },
+                        x: { title: { display: true, text: 'Category', font: { size: 12 }, color: '#ffffff' }, ticks: { color: '#ffffff', font: { size: 10 }, maxRotation: 45, minRotation: 45 }, grid: { color: 'rgba(255, 255, 255, 0.2)' } }
                     },
                     plugins: {
-                        legend: { position: 'top', labels: { font: { size: 12, weight: 'bold' }, color: '#ffffff' } },
-                        tooltip: { 
-                            backgroundColor: '#1e3a8a',
-                            callbacks: { label: context => `${context.label}: ₹${context.raw.toFixed(2)}` } 
-                        },
-                        datalabels: {
-                            formatter: (value) => value > 0 ? `₹${value.toFixed(0)}` : '',
-                            align: 'end',
-                            anchor: 'end',
-                            color: '#ffffff',
-                            font: { weight: 'bold', size: 12 },
-                            textShadowColor: 'rgba(0, 0, 0, 0.5)',
-                            textShadowBlur: 3
-                        },
-                        annotation: {
-                            annotations: maxExpense > 0 ? [{
-                                type: 'label',
-                                xValue: customCategories.findIndex(cat => (latestEntry.expenses[cat.id] || 0) === maxExpense),
-                                yValue: maxExpense,
-                                content: `Max: ₹${maxExpense.toFixed(0)}`,
-                                backgroundColor: '#f87171',
-                                color: '#ffffff',
-                                padding: 4,
-                                font: { size: 10 },
-                                position: 'center',
-                                yAdjust: -15
-                            }] : []
-                        }
-                    },
-                    animation: { duration: 1000, easing: 'easeOutQuart' }
+                        legend: { position: 'top', labels: { font: { size: 10 }, color: '#ffffff' } },
+                        tooltip: { backgroundColor: '#1e3a8a', callbacks: { label: context => `${context.label}: ₹${context.raw.toFixed(2)}` } },
+                        datalabels: { formatter: (value) => value > 0 ? `₹${value.toFixed(0)}` : '', align: 'end', anchor: 'end', color: '#ffffff', font: { weight: 'bold', size: 10 } },
+                        annotation: { annotations: maxExpense > 0 ? [{ type: 'label', xValue: customCategories.findIndex(cat => (latestEntry.expenses[cat.id] || 0) === maxExpense), yValue: maxExpense, content: `Max: ₹${maxExpense.toFixed(0)}`, backgroundColor: '#f87171', color: '#ffffff', padding: 4, font: { size: 8 }, position: 'center', yAdjust: -10 }] : [] }
+                    }
                 }
             });
+            chartCache.set(cacheKey, true);
         }
-
         function updateYearlyChart() {
             const year = document.getElementById('yearly-year').value;
+            const cacheKey = `yearly-${year}`;
+            if (chartCache.has(cacheKey)) return;
             const filteredData = monthlySavingsHistory.filter(entry => entry.month.split(' ')[1] === year);
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const savingsData = months.map(month => {
-                const entry = filteredData.find(e => e.month.startsWith(month));
-                return entry ? entry.savings : 0;
-            });
+            const savingsData = months.map(month => filteredData.find(e => e.month.startsWith(month))?.savings || 0);
+            const hasData = savingsData.some(val => val !== 0);
+            if (!hasData) {
+                const canvas = document.getElementById('yearlyChart');
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.font = '14px Arial';
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'center';
+                ctx.fillText('No savings data available', canvas.width / 2, canvas.height / 2);
+                if (charts.yearlyChart) charts.yearlyChart.destroy();
+                charts.yearlyChart = null;
+                return;
+            }
             const maxSavings = Math.max(...savingsData, 0);
             const minSavings = Math.min(...savingsData, 0);
             const maxIndex = savingsData.indexOf(maxSavings);
             const minIndex = savingsData.indexOf(minSavings);
-
-            if (yearlyChart) yearlyChart.destroy();
+            if (charts.yearlyChart) charts.yearlyChart.destroy();
             const yearlyCtx = document.getElementById('yearlyChart').getContext('2d');
             const gradient = yearlyCtx.createLinearGradient(0, 0, 0, 300);
             gradient.addColorStop(0, 'rgba(126, 34, 206, 0.8)');
             gradient.addColorStop(1, 'rgba(192, 132, 252, 0.4)');
-
-            yearlyChart = new Chart(yearlyCtx, {
+            charts.yearlyChart = new Chart(yearlyCtx, {
                 type: 'bar',
                 data: {
                     labels: months,
@@ -748,89 +684,45 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: { 
-                            beginAtZero: true, 
-                            title: { display: true, text: 'Savings (₹)', font: { size: 14 }, color: '#ffffff' },
-                            grid: { color: 'rgba(255, 255, 255, 0.2)' },
-                            ticks: { color: '#ffffff', font: { size: 12 } }
-                        },
-                        x: { 
-                            title: { display: true, text: 'Month', font: { size: 14 }, color: '#ffffff' },
-                            ticks: { color: '#ffffff', font: { size: 12 } },
-                            grid: { color: 'rgba(255, 255, 255, 0.2)' }
-                        }
+                        y: { beginAtZero: true, title: { display: true, text: 'Savings (₹)', font: { size: 12 }, color: '#ffffff' }, grid: { color: 'rgba(255, 255, 255, 0.2)' }, ticks: { color: '#ffffff', font: { size: 10 } } },
+                        x: { title: { display: true, text: 'Month', font: { size: 12 }, color: '#ffffff' }, ticks: { color: '#ffffff', font: { size: 10 } }, grid: { color: 'rgba(255, 255, 255, 0.2)' } }
                     },
                     plugins: {
-                        legend: { position: 'top', labels: { font: { size: 12, weight: 'bold' }, color: '#ffffff' } },
-                        tooltip: { 
-                            backgroundColor: '#1e3a8a',
-                            callbacks: { 
-                                label: context => `Savings: ₹${context.raw.toFixed(2)}`,
-                                title: context => {
-                                    const entry = filteredData.find(e => e.month.startsWith(context[0].label));
-                                    return entry && entry.notes ? `${context[0].label} ${year} (${entry.notes})` : `${context[0].label} ${year}`;
-                                }
-                            } 
-                        },
-                        datalabels: {
-                            formatter: (value) => value !== 0 ? `₹${value.toFixed(0)}` : '',
-                            align: 'end',
-                            anchor: 'end',
-                            color: '#ffffff',
-                            font: { weight: 'bold', size: 12 },
-                            textShadowColor: 'rgba(0, 0, 0, 0.5)',
-                            textShadowBlur: 3
-                        },
-                        annotation: {
-                            annotations: maxSavings > 0 ? [
-                                {
-                                    type: 'label',
-                                    xValue: maxIndex,
-                                    yValue: maxSavings,
-                                    content: `Peak: ₹${maxSavings.toFixed(0)}`,
-                                    backgroundColor: '#c084fc',
-                                    color: '#ffffff',
-                                    padding: 4,
-                                    font: { size: 10 },
-                                    position: 'center',
-                                    yAdjust: -15
-                                },
-                                {
-                                    type: 'label',
-                                    xValue: minIndex,
-                                    yValue: minSavings,
-                                    content: `Low: ₹${minSavings.toFixed(0)}`,
-                                    backgroundColor: '#f87171',
-                                    color: '#ffffff',
-                                    padding: 4,
-                                    font: { size: 10 },
-                                    position: 'center',
-                                    yAdjust: 15
-                                }
-                            ] : []
-                        }
-                    },
-                    animation: { duration: 1000, easing: 'easeOutQuart' }
+                        legend: { position: 'top', labels: { font: { size: 10 }, color: '#ffffff' } },
+                        tooltip: { backgroundColor: '#1e3a8a', callbacks: { label: context => `Savings: ₹${context.raw.toFixed(2)}`, title: context => filteredData.find(e => e.month.startsWith(context[0].label))?.notes ? `${context[0].label} ${year} (${filteredData.find(e => e.month.startsWith(context[0].label)).notes})` : `${context[0].label} ${year}` } },
+                        datalabels: { formatter: (value) => value !== 0 ? `₹${value.toFixed(0)}` : '', align: 'end', anchor: 'end', color: '#ffffff', font: { weight: 'bold', size: 10 } },
+                        annotation: { annotations: maxSavings > 0 ? [{ type: 'label', xValue: maxIndex, yValue: maxSavings, content: `Peak: ₹${maxSavings.toFixed(0)}`, backgroundColor: '#c084fc', color: '#ffffff', padding: 4, font: { size: 8 }, position: 'center', yAdjust: -10 }, minSavings < 0 ? { type: 'label', xValue: minIndex, yValue: minSavings, content: `Low: ₹${minSavings.toFixed(0)}`, backgroundColor: '#f87171', color: '#ffffff', padding: 4, font: { size: 8 }, position: 'center', yAdjust: 10 } : null].filter(a => a) : [] }
+                    }
                 }
             });
+            chartCache.set(cacheKey, true);
         }
-
         function updateYearlyCompareChart() {
+            const cacheKey = 'yearly-compare';
+            if (chartCache.has(cacheKey)) return;
             const years = [...new Set(monthlySavingsHistory.map(entry => entry.month.split(' ')[1]))].sort((a, b) => a - b);
-            const savingsData = years.map(year => {
-                const yearlyData = monthlySavingsHistory.filter(entry => entry.month.split(' ')[1] === year);
-                return yearlyData.reduce((sum, entry) => sum + entry.savings, 0);
-            });
+            const savingsData = years.map(year => monthlySavingsHistory.filter(entry => entry.month.split(' ')[1] === year).reduce((sum, entry) => sum + entry.savings, 0));
+            const hasData = savingsData.some(val => val !== 0);
+            if (!hasData) {
+                const canvas = document.getElementById('yearlyCompareChart');
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.font = '14px Arial';
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'center';
+                ctx.fillText('No savings data available', canvas.width / 2, canvas.height / 2);
+                if (charts.yearlyCompareChart) charts.yearlyCompareChart.destroy();
+                charts.yearlyCompareChart = null;
+                return;
+            }
             const maxSavings = Math.max(...savingsData, 0);
             const maxIndex = savingsData.indexOf(maxSavings);
-
-            if (yearlyCompareChart) yearlyCompareChart.destroy();
+            if (charts.yearlyCompareChart) charts.yearlyCompareChart.destroy();
             const yearlyCompareCtx = document.getElementById('yearlyCompareChart').getContext('2d');
             const gradient = yearlyCompareCtx.createLinearGradient(0, 0, 0, 300);
             gradient.addColorStop(0, 'rgba(30, 58, 138, 0.8)');
             gradient.addColorStop(1, 'rgba(96, 165, 250, 0.4)');
-
-            yearlyCompareChart = new Chart(yearlyCompareCtx, {
+            charts.yearlyCompareChart = new Chart(yearlyCompareCtx, {
                 type: 'bar',
                 data: {
                     labels: years,
@@ -846,66 +738,91 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: { 
-                            beginAtZero: true, 
-                            title: { display: true, text: 'Savings (₹)', font: { size: 14 }, color: '#ffffff' },
-                            grid: { color: 'rgba(255, 255, 255, 0.2)' },
-                            ticks: { color: '#ffffff', font: { size: 12 } }
-                        },
-                        x: { 
-                            title: { display: true, text: 'Year', font: { size: 14 }, color: '#ffffff' },
-                            ticks: { color: '#ffffff', font: { size: 12 } },
-                            grid: { color: 'rgba(255, 255, 255, 0.2)' }
-                        }
+                        y: { beginAtZero: true, title: { display: true, text: 'Savings (₹)', font: { size: 12 }, color: '#ffffff' }, grid: { color: 'rgba(255, 255, 255, 0.2)' }, ticks: { color: '#ffffff', font: { size: 10 } } },
+                        x: { title: { display: true, text: 'Year', font: { size: 12 }, color: '#ffffff' }, ticks: { color: '#ffffff', font: { size: 10 } }, grid: { color: 'rgba(255, 255, 255, 0.2)' } }
                     },
                     plugins: {
-                        legend: { position: 'top', labels: { font: { size: 12, weight: 'bold' }, color: '#ffffff' } },
-                        tooltip: { 
-                            backgroundColor: '#1e3a8a',
-                            callbacks: { label: context => `Savings: ₹${context.raw.toFixed(2)}` } 
-                        },
-                        datalabels: {
-                            formatter: (value) => value !== 0 ? `₹${value.toFixed(0)}` : '',
-                            align: 'end',
-                            anchor: 'end',
-                            color: '#ffffff',
-                            font: { weight: 'bold', size: 12 },
-                            textShadowColor: 'rgba(0, 0, 0, 0.5)',
-                            textShadowBlur: 3
-                        },
-                        annotation: {
-                            annotations: maxSavings > 0 ? [{
-                                type: 'label',
-                                xValue: maxIndex,
-                                yValue: maxSavings,
-                                content: `Peak: ₹${maxSavings.toFixed(0)}`,
-                                backgroundColor: '#60a5fa',
-                                color: '#ffffff',
-                                padding: 4,
-                                font: { size: 10 },
-                                position: 'center',
-                                yAdjust: -15
-                            }] : []
-                        }
-                    },
-                    animation: { duration: 1000, easing: 'easeOutQuart' }
+                        legend: { position: 'top', labels: { font: { size: 10 }, color: '#ffffff' } },
+                        tooltip: { backgroundColor: '#1e3a8a', callbacks: { label: context => `Savings: ₹${context.raw.toFixed(2)}` } },
+                        datalabels: { formatter: (value) => value !== 0 ? `₹${value.toFixed(0)}` : '', align: 'end', anchor: 'end', color: '#ffffff', font: { weight: 'bold', size: 10 } },
+                        annotation: { annotations: maxSavings > 0 ? [{ type: 'label', xValue: maxIndex, yValue: maxSavings, content: `Peak: ₹${maxSavings.toFixed(0)}`, backgroundColor: '#60a5fa', color: '#ffffff', padding: 4, font: { size: 8 }, position: 'center', yAdjust: -10 }] : [] }
+                    }
                 }
             });
+            chartCache.set(cacheKey, true);
         }
-
+        function updateCategoryTrendsChart() {
+            const year = document.getElementById('trends-year').value;
+            const cacheKey = `trends-${year}`;
+            if (chartCache.has(cacheKey)) return;
+            const filteredData = monthlySavingsHistory.filter(entry => entry.month.split(' ')[1] === year);
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const datasets = customCategories.map(cat => ({
+                label: cat.name,
+                data: months.map(month => filteredData.find(e => e.month.startsWith(month))?.expenses[cat.id] || 0),
+                borderColor: ['#ef4444', '#f97316', '#facc15', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6', '#f59e0b', '#8b5cf6'][customCategories.indexOf(cat) % 10],
+                backgroundColor: ['#ef4444', '#f97316', '#facc15', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6', '#f59e0b', '#8b5cf6'][customCategories.indexOf(cat) % 10] + '33',
+                fill: false,
+                tension: 0.4
+            }));
+            const hasData = datasets.some(ds => ds.data.some(val => val !== 0));
+            if (!hasData) {
+                const canvas = document.getElementById('categoryTrendsChart');
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.font = '14px Arial';
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'center';
+                ctx.fillText('No expense data available', canvas.width / 2, canvas.height / 2);
+                if (charts.categoryTrendsChart) charts.categoryTrendsChart.destroy();
+                charts.categoryTrendsChart = null;
+                return;
+            }
+            if (charts.categoryTrendsChart) charts.categoryTrendsChart.destroy();
+            const categoryTrendsCtx = document.getElementById('categoryTrendsChart').getContext('2d');
+            charts.categoryTrendsChart = new Chart(categoryTrendsCtx, {
+                type: 'line',
+                data: { labels: months, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Expenses (₹)', font: { size: 12 }, color: '#ffffff' }, grid: { color: 'rgba(255, 255, 255, 0.2)' }, ticks: { color: '#ffffff', font: { size: 10 } } },
+                        x: { title: { display: true, text: 'Month', font: { size: 12 }, color: '#ffffff' }, ticks: { color: '#ffffff', font: { size: 10 } }, grid: { color: 'rgba(255, 255, 255, 0.2)' } }
+                    },
+                    plugins: {
+                        legend: { position: 'top', labels: { font: { size: 10 }, color: '#ffffff' } },
+                        tooltip: { backgroundColor: '#1e3a8a', callbacks: { label: context => `${context.dataset.label}: ₹${context.raw.toFixed(2)}` } },
+                        datalabels: { display: false }
+                    }
+                }
+            });
+            chartCache.set(cacheKey, true);
+        }
+        function downloadChart(chartId, filename) {
+            const canvas = document.getElementById(chartId);
+            if (!canvas || !charts[chartId.replace('Chart', '')]) {
+                notifyUser('Error', 'Chart not available for download.');
+                return;
+            }
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = filename;
+            link.click();
+            notifyUser('Chart Downloaded', `${filename} saved.`);
+        }
         function resetSavings() {
             monthlySavingsHistory = [];
             localStorage.setItem('monthlySavingsHistory', JSON.stringify(monthlySavingsHistory));
-            document.getElementById('result').innerHTML = '<p class="text-green-500 font-semibold slide-in">Savings history reset!</p>';
+            document.getElementById('results-content').innerHTML = '<p class="text-green-500 font-semibold slide-in">Savings history reset!</p>';
+            toggleAccordion('results-content');
             updateHistoryAccordion();
             populateYearSelectors();
-            if (categoryPieChart) categoryPieChart.destroy();
-            if (categoryBarChart) categoryBarChart.destroy();
-            if (yearlyChart) yearlyChart.destroy();
-            if (yearlyCompareChart) yearlyCompareChart.destroy();
+            Object.values(charts).forEach(chart => chart?.destroy());
+            charts = { categoryPieChart: null, categoryBarChart: null, yearlyChart: null, yearlyCompareChart: null, categoryTrendsChart: null };
+            chartCache.clear();
             notifyUser('Data Reset', 'Savings history reset.');
         }
-
         function exportData() {
             const dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(
                 "Month,Savings (INR),Income (INR),Notes\n" +
@@ -915,8 +832,8 @@
             link.setAttribute('href', dataStr);
             link.setAttribute('download', 'savings_history_inr.csv');
             link.click();
+            notifyUser('Data Exported', 'CSV file downloaded.');
         }
-
         function importData() {
             const fileInput = document.getElementById('importFile');
             const file = fileInput.files[0];
@@ -929,12 +846,16 @@
                         .filter(row => row.trim())
                         .map(row => {
                             const [month, savings, income, notes] = row.split(',');
-                            return { month, savings: parseFloat(savings) || 0, income: parseFloat(income) || 0, notes };
-                        });
+                            if (!month || isNaN(parseFloat(savings)) || isNaN(parseFloat(income))) return null;
+                            return { month, savings: parseFloat(savings) || 0, income: parseFloat(income) || 0, notes: notes || '', expenses: customCategories.reduce((acc, cat) => ({ ...acc, [cat.id]: 0 }), {}) };
+                        })
+                        .filter(entry => entry !== null);
                     localStorage.setItem('monthlySavingsHistory', JSON.stringify(monthlySavingsHistory));
-                    document.getElementById('result').innerHTML = '<p class="text-green-500 font-semibold slide-in">Data imported!</p>';
+                    document.getElementById('results-content').innerHTML = '<p class="text-green-500 font-semibold slide-in">Data imported!</p>';
+                    toggleAccordion('results-content');
                     updateHistoryAccordion();
                     populateYearSelectors();
+                    chartCache.clear();
                     notifyUser('Data Imported', 'Savings history imported.');
                     calculateBudget();
                 };
@@ -943,7 +864,6 @@
                 notifyUser('Error', 'Please select a CSV file.');
             }
         }
-
         function backupData() {
             const backupData = { monthlySavingsHistory, customCategories, expenseNotes: document.getElementById('expenseNotes').value };
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
@@ -951,43 +871,40 @@
             link.setAttribute('href', dataStr);
             link.setAttribute('download', 'budget_backup.json');
             link.click();
-            notifyUser('Backup Created', 'Data backup downloaded.');
+            notifyUser('Backup Created', 'Data backed up as JSON.');
         }
-
         function notifyUser(title, message) {
-            if (Notification.permission === 'granted') {
+            if ('Notification' in window && Notification.permission === 'granted') {
                 new Notification(title, { body: message });
-            } else if (Notification.permission !== 'denied') {
-                Notification.requestPermission().then(permission => {
-                    if (permission === 'granted') {
-                        new Notification(title, { body: message });
-                    }
-                });
+            } else {
+                alert(`${title}: ${message}`);
             }
         }
-
         function toggleTheme() {
             document.documentElement.classList.toggle('dark');
-            const isDark = document.documentElement.classList.contains('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            document.getElementById('themeIcon').textContent = isDark ? '🌙' : '💡';
-            calculateBudget();
+            document.getElementById('themeIcon').textContent = document.documentElement.classList.contains('dark') ? '🌙' : '💡';
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+            Object.values(charts).forEach(chart => chart?.update());
         }
-
-        if (localStorage.getItem('theme') === 'dark') {
-            document.documentElement.classList.add('dark');
-            document.getElementById('themeIcon').textContent = '🌙';
-        }
-        if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-            Notification.requestPermission();
-        }
-        document.querySelectorAll('input, textarea').forEach(input => {
-            input.addEventListener('input', debounce(calculateBudget, 300));
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.documentElement.classList.add('dark');
+                document.getElementById('themeIcon').textContent = '🌙';
+            }
+            renderCategories();
+            updateHistoryAccordion();
+            populateYearSelectors();
+            document.getElementById('income').addEventListener('input', debounce(calculateBudget, 300));
+            document.getElementById('expenseCategories').addEventListener('input', debounce(calculateBudget, 300));
+            document.getElementById('savingsGoal').addEventListener('input', debounce(calculateBudget, 300));
+            document.getElementById('currentSavings').addEventListener('input', debounce(calculateBudget, 300));
         });
-        renderCategories();
-        updateHistoryAccordion();
-        populateYearSelectors();
-        calculateBudget();
+        function debounce(func, wait) {
+            return function(...args) {
+                clearTimeout(debounceTimeout);
+                debounceTimeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
     </script>
 </body>
 </html>
