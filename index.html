@@ -126,7 +126,7 @@
             from { transform: scale(0.98); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
-        .input-field {
+        .input-field, .select-field {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: 0.5rem;
@@ -137,7 +137,7 @@
             font-size: 0.95rem;
             animation: fadeIn 0.3s ease-out;
         }
-        .input-field:focus {
+        .input-field:focus, .select-field:focus {
             border-color: var(--accent-blue);
             box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
             outline: none;
@@ -163,7 +163,8 @@
             transform: translateY(-50%);
             transition: all 0.2s ease;
         }
-        .input-field:not(:placeholder-shown) + label, .input-field:focus + label {
+        .input-field:not(:placeholder-shown) + label, .input-field:focus + label,
+        .select-field:not(:placeholder-shown) + label, .select-field:focus + label {
             color: var(--accent-blue);
             transform: translateY(-0.9rem) scale(0.95);
         }
@@ -297,7 +298,7 @@
             display: none;
             animation: fadeIn 0.2s ease;
         }
-        .invalid .input-field {
+        .invalid .input-field, .invalid .select-field {
             border-color: var(--accent-red);
             box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
         }
@@ -329,6 +330,28 @@
             border-top: 1px solid var(--border-color);
             margin: 1rem 0;
         }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .dashboard-card {
+            background: var(--bg-card);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+        }
+        .dashboard-card i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent-blue);
+        }
         @media (max-width: 640px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -351,7 +374,7 @@
                 padding: 1.2rem;
                 border-radius: 0.6rem;
             }
-            .input-field {
+            .input-field, .select-field {
                 font-size: 0.9rem;
                 padding: 0.6rem 0.8rem;
             }
@@ -387,6 +410,9 @@
             .grid-cols-2, .grid-cols-3 {
                 grid-template-columns: 1fr;
             }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -396,7 +422,8 @@
             <i class="fas fa-wallet mr-2 text-accent-blue"></i> Budget
         </h2>
         <nav class="sidebar-nav">
-            <a href="#expenses" class="active"><i class="fas fa-money-bill-wave"></i> Expenses</a>
+            <a href="#dashboard" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="#expenses"><i class="fas fa-money-bill-wave"></i> Expenses</a>
             <a href="#savings-goals"><i class="fas fa-bullseye"></i> Savings Goals</a>
             <a href="#current-savings"><i class="fas fa-piggy-bank"></i> Current Savings</a>
             <a href="#analysis"><i class="fas fa-chart-line"></i> Analysis</a>
@@ -413,6 +440,32 @@
     </button>
     <div class="main-content" id="mainContent">
         <div class="container">
+            <section id="dashboard" class="card">
+                <h2 class="text-2xl font-bold mb-4">Dashboard</h2>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <i class="fas fa-wallet"></i>
+                        <h3 class="text-lg font-semibold">Income</h3>
+                        <p id="dashIncome" class="text-xl font-bold">₹0.00</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <h3 class="text-lg font-semibold">Expenses</h3>
+                        <p id="dashExpenses" class="text-xl font-bold">₹0.00</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <i class="fas fa-piggy-bank"></i>
+                        <h3 class="text-lg font-semibold">Savings</h3>
+                        <p id="dashSavings" class="text-xl font-bold">₹0.00</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <i class="fas fa-bullseye"></i>
+                        <h3 class="text-lg font-semibold">Goal Progress</h3>
+                        <p id="dashProgress" class="text-xl font-bold">0%</p>
+                    </div>
+                </div>
+            </section>
+            <div class="section-divider"></div>
             <section id="expenses" class="card">
                 <h2 class="text-2xl font-bold mb-4">Expenses</h2>
                 <div class="input-group">
@@ -424,9 +477,17 @@
                 <div id="expenseCategories" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                     <div class="input-group">
-                        <input id="newCategoryName" type="text" class="input-field" placeholder="Category name" aria-label="Category name" aria-describedby="category-name-error">
+                        <select id="newCategoryName" class="select-field" aria-label="Category name" aria-describedby="category-name-error">
+                            <option value="" disabled selected>Select or type category</option>
+                            <option value="Dining">Dining</option>
+                            <option value="Travel">Travel</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Education">Education</option>
+                            <option value="Custom">Custom</option>
+                        </select>
                         <label for="newCategoryName">Category Name</label>
-                        <p id="category-name-error" class="error-message">Enter category name.</p>
+                        <p id="category-name-error" class="error-message">Select or enter category.</p>
                     </div>
                     <div class="input-group">
                         <input id="newCategoryAmount" type="number" min="0" step="0.01" class="input-field" placeholder="Amount (₹)" aria-label="Category amount" aria-describedby="category-amount-error">
@@ -487,7 +548,7 @@
                     <div class="tab" data-tab="category-trends" role="tab" aria-selected="false">Category Trends</div>
                 </div>
                 <div id="pie-chart" class="tab-content active" role="tabpanel">
-                    <select id="yearly-pie-year" class="input-field w-full mb-3" onchange="updateCategoryPieChart()" aria-label="Select year">
+                    <select id="yearly-pie-year" class="select-field w-full mb-3" onchange="updateCategoryPieChart()" aria-label="Select year for pie chart">
                         <option value="2025">2025</option>
                     </select>
                     <div class="chart-container">
@@ -496,7 +557,7 @@
                     </div>
                 </div>
                 <div id="bar-chart" class="tab-content" role="tabpanel">
-                    <select id="yearly-bar-year" class="input-field w-full mb-3" onchange="updateCategoryBarChart()" aria-label="Select year">
+                    <select id="yearly-bar-year" class="select-field w-full mb-3" onchange="updateCategoryBarChart()" aria-label="Select year for bar chart">
                         <option value="2025">2025</option>
                     </select>
                     <div class="chart-container">
@@ -505,7 +566,7 @@
                     </div>
                 </div>
                 <div id="savings-trend" class="tab-content" role="tabpanel">
-                    <select id="yearly-year" class="input-field w-full mb-3" onchange="updateYearlyChart()" aria-label="Select year">
+                    <select id="yearly-year" class="select-field w-full mb-3" onchange="updateYearlyChart()" aria-label="Select year for savings trend">
                         <option value="2025">2025</option>
                     </select>
                     <div class="chart-container">
@@ -514,7 +575,7 @@
                     </div>
                 </div>
                 <div id="category-trends" class="tab-content" role="tabpanel">
-                    <select id="trends-year" class="input-field w-full mb-3" onchange="updateCategoryTrendsChart()" aria-label="Select year">
+                    <select id="trends-year" class="select-field w-full mb-3" onchange="updateCategoryTrendsChart()" aria-label="Select year for category trends">
                         <option value="2025">2025</option>
                     </select>
                     <div class="chart-container">
@@ -548,7 +609,7 @@
                     <button onclick="backupData()" class="btn bg-purple-500"><i class="fas fa-cloud-upload-alt mr-1"></i>Backup</button>
                 </div>
                 <div class="mt-4">
-                    <input id="importFile" type="file" accept=".csv" class="input-field w-full" aria-label="Import CSV">
+                    <input id="importFile" type="file" accept=".csv,.json" class="input-field w-full" aria-label="Import CSV or JSON">
                     <button onclick="importData()" class="btn mt-3"><i class="fas fa-upload mr-1"></i>Import</button>
                 </div>
             </section>
@@ -577,7 +638,11 @@
             categoryPieChart: document.getElementById('categoryPieChart'),
             categoryBarChart: document.getElementById('categoryBarChart'),
             yearlyChart: document.getElementById('yearlyChart'),
-            categoryTrendsChart: document.getElementById('categoryTrendsChart')
+            categoryTrendsChart: document.getElementById('categoryTrendsChart'),
+            dashIncome: document.getElementById('dashIncome'),
+            dashExpenses: document.getElementById('dashExpenses'),
+            dashSavings: document.getElementById('dashSavings'),
+            dashProgress: document.getElementById('dashProgress')
         };
 
         let monthlySavingsHistory = JSON.parse(localStorage.getItem('monthlySavingsHistory')) || [];
@@ -614,10 +679,30 @@
             button.innerHTML = originalText;
         }
 
+        function setupScrollSpy() {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.sidebar-nav a');
+            const observerOptions = {
+                root: null,
+                rootMargin: '-100px 0px -50% 0px',
+                threshold: 0.1
+            };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href') === `#${entry.target.id}`);
+                        });
+                    }
+                });
+            }, observerOptions);
+            sections.forEach(section => observer.observe(section));
+        }
+
         function renderCategories() {
             if (!elements.expenseCategories) return;
             elements.expenseCategories.innerHTML = customCategories.map(cat => `
-                <div class="input-group invalid">
+                <div class="input-group">
                     <input id="${cat.id}" type="number" min="0" step="0.01" class="input-field" placeholder="Enter amount (₹)" value="${cat.amount}" aria-label="${cat.name}" aria-describedby="${cat.id}-error">
                     <label for="${cat.id}">${cat.name}</label>
                     <p id="${cat.id}-error" class="error-message">Enter valid amount.</p>
@@ -627,7 +712,14 @@
         }
 
         function addCategory() {
-            const name = elements.newCategoryName?.value.trim();
+            let name = elements.newCategoryName?.value.trim();
+            if (name === 'Custom') {
+                name = prompt('Enter custom category name:');
+                if (!name || !name.trim()) {
+                    showToast('error', 'Invalid category name.');
+                    return;
+                }
+            }
             const amount = parseFloat(elements.newCategoryAmount?.value) || 0;
             const nameError = document.getElementById('category-name-error');
             const amountError = document.getElementById('category-amount-error');
@@ -833,6 +925,13 @@
                 elements.quickStats.innerHTML = `Income: ₹${income.toFixed(2)}<br>Expenses: ₹${totalExpenses.toFixed(2)}<br>Savings: ₹${monthlySavings.toFixed(2)}`;
                 elements.healthSummary.innerHTML = `Expense Ratio: ${expenseRatio}%<br>${expenseRatio > 90 ? '<span class="text-accent-red">High spending!</span>' : expenseRatio > 70 ? '<span class="text-accent-orange">Moderate spending</span>' : '<span class="text-accent-green">Healthy spending</span>'}`;
                 elements.savingsProgress.style.width = `${progressPercentage}%`;
+
+                // Update dashboard
+                elements.dashIncome.textContent = `₹${income.toFixed(2)}`;
+                elements.dashExpenses.textContent = `₹${totalExpenses.toFixed(2)}`;
+                elements.dashSavings.textContent = `₹${monthlySavings.toFixed(2)}`;
+                elements.dashProgress.textContent = `${progressPercentage}%`;
+
                 showToast('success', 'Budget analyzed.');
                 hideLoading(button, originalText);
                 updateCategoryPieChart();
@@ -1147,6 +1246,10 @@
                 elements.quickStats.innerHTML = 'Income: ₹0.00<br>Expenses: ₹0.00<br>Savings: ₹0.00';
                 elements.healthSummary.innerHTML = 'Analyze budget.';
                 elements.savingsProgress.style.width = '0%';
+                elements.dashIncome.textContent = '₹0.00';
+                elements.dashExpenses.textContent = '₹0.00';
+                elements.dashSavings.textContent = '₹0.00';
+                elements.dashProgress.textContent = '0%';
                 updateHistoryAccordion();
                 populateYearSelectors();
                 Object.keys(charts).forEach(key => {
@@ -1191,46 +1294,58 @@
 
         function importData() {
             if (!elements.importFile?.files[0]) {
-                showToast('error', 'Select CSV file.');
+                showToast('error', 'Select CSV or JSON file.');
                 return;
             }
             const button = document.querySelector('button[onclick="importData()"]');
             const originalText = button.innerHTML;
             showLoading(button);
+            const file = elements.importFile.files[0];
             const reader = new FileReader();
             reader.onload = () => {
                 try {
-                    const rows = reader.result.split('\n').slice(1).filter(row => row.trim());
-                    if (rows.length === 0) throw new Error('Empty CSV');
-                    const newEntries = rows.map(row => {
-                        const cols = row.split(',').map(col => col.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
-                        if (cols.length < 6) throw new Error('Invalid CSV format');
-                        const [day, month, year, savings, income, ...rest] = cols;
-                        if (!day || !month || !year || isNaN(parseFloat(savings)) || isNaN(parseFloat(income))) {
-                            throw new Error('Invalid CSV data');
-                        }
-                        const expenseValues = rest.slice(0, customCategories.length);
-                        if (expenseValues.length !== customCategories.length) throw new Error('Category mismatch');
-                        const expenses = {};
-                        customCategories.forEach((cat, i) => expenses[cat.id] = parseFloat(expenseValues[i]) || 0);
-                        const notes = rest[customCategories.length] || '';
-                        const savingsGoal = parseFloat(rest[rest.length - 2]) || 0;
-                        const currentSavings = parseFloat(rest[rest.length - 1]) || 0;
-                        return { day, month, year, savings: parseFloat(savings), income: parseFloat(income), expenses, notes, savingsGoal, currentSavings };
-                    });
-                    monthlySavingsHistory.push(...newEntries);
+                    if (file.name.endsWith('.csv')) {
+                        const rows = reader.result.split('\n').slice(1).filter(row => row.trim());
+                        if (rows.length === 0) throw new Error('Empty CSV');
+                        const newEntries = rows.map(row => {
+                            const cols = row.split(',').map(col => col.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+                            if (cols.length < 6) throw new Error('Invalid CSV format');
+                            const [day, month, year, savings, income, ...rest] = cols;
+                            if (!day || !month || !year || isNaN(parseFloat(savings)) || isNaN(parseFloat(income))) {
+                                throw new Error('Invalid CSV data');
+                            }
+                            const expenseValues = rest.slice(0, customCategories.length);
+                            if (expenseValues.length !== customCategories.length) throw new Error('Category mismatch');
+                            const expenses = {};
+                            customCategories.forEach((cat, i) => expenses[cat.id] = parseFloat(expenseValues[i]) || 0);
+                            const notes = rest[customCategories.length] || '';
+                            const savingsGoal = parseFloat(rest[rest.length - 2]) || 0;
+                            const currentSavings = parseFloat(rest[rest.length - 1]) || 0;
+                            return { day, month, year, savings: parseFloat(savings), income: parseFloat(income), expenses, notes, savingsGoal, currentSavings };
+                        });
+                        monthlySavingsHistory.push(...newEntries);
+                    } else if (file.name.endsWith('.json')) {
+                        const data = JSON.parse(reader.result);
+                        monthlySavingsHistory = data.history || [];
+                        customCategories = data.categories || customCategories;
+                        if (data.notes && elements.expenseNotes) elements.expenseNotes.value = data.notes;
+                    } else {
+                        throw new Error('Unsupported file type');
+                    }
                     localStorage.setItem('monthlySavingsHistory', JSON.stringify(monthlySavingsHistory));
+                    localStorage.setItem('customCategories', JSON.stringify(customCategories));
+                    renderCategories();
                     updateHistoryAccordion();
                     populateYearSelectors();
                     chartCache.clear();
                     hideLoading(button, originalText);
-                    showToast('success', 'CSV imported.');
+                    showToast('success', 'Data imported.');
                 } catch (e) {
                     hideLoading(button, originalText);
                     showToast('error', `Import failed: ${e.message}`);
                 }
             };
-            reader.readAsText(elements.importFile.files[0]);
+            reader.readAsText(file);
         }
 
         function backupData() {
@@ -1307,11 +1422,12 @@
             updateHistoryAccordion();
             populateYearSelectors();
             setupTabs();
+            setupScrollSpy();
             document.addEventListener('click', e => {
                 if (e.target.closest('.btn')) addRippleEffect(e);
             });
             document.addEventListener('input', e => {
-                if (e.target.classList.contains('input-field')) {
+                if (e.target.classList.contains('input-field') || e.target.classList.contains('select-field')) {
                     const error = e.target.parentElement.querySelector('.error-message');
                     if (error) {
                         const isInvalid = e.target.type === 'number' ? (e.target.value < 0 || !e.target.value) : !e.target.value;
@@ -1323,6 +1439,11 @@
             window.addEventListener('resize', () => {
                 Object.values(charts).filter(chart => chart).forEach(chart => chart.resize());
             });
+            // Initialize dashboard with default values
+            elements.dashIncome.textContent = '₹0.00';
+            elements.dashExpenses.textContent = '₹0.00';
+            elements.dashSavings.textContent = '₹0.00';
+            elements.dashProgress.textContent = '0%';
         });
     </script>
 </body>
